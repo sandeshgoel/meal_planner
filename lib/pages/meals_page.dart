@@ -19,19 +19,52 @@ class MealsPage extends StatefulWidget {
 class _MealsPageState extends State<MealsPage> {
   @override
   Widget build(BuildContext context) {
-    List<Widget> dayList = _dayList();
+    DateTime day = DateTime.now();
+    DateFormat formatter = DateFormat('MMM dd, y');
+    String formatted = formatter.format(day);
+
+    List<Widget> dayList = _dayList(day);
     return SingleChildScrollView(
       child: Column(
-        children: dayList,
+        children: [
+          Container(
+            color: Colors.lightBlue,
+            margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                Text(
+                  'Week of $formatted',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.arrow_forward),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            children: dayList,
+          ),
+          const SizedBox(
+            height: 20,
+          )
+        ],
       ),
     );
   }
 
-  List<Widget> _dayList() {
+  List<Widget> _dayList(DateTime day) {
     List<Widget> ret = [];
 
     for (var i = 0; i < 7; i++) {
-      ret.add(_dayTile(DateTime.now().add(Duration(days: i))));
+      ret.add(_dayTile(day.add(Duration(days: i))));
     }
     return ret;
   }

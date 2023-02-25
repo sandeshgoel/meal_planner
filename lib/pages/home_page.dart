@@ -24,118 +24,147 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<YogaSettings>(builder: (context, settings, _) {
-      return DefaultTabController(
-        initialIndex: 0,
-        length: 2,
-        child: ShowCaseWidget(
-          builder: Builder(builder: (context) {
-            return Scaffold(
-              appBar: AppBar(
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.help_rounded),
-                    onPressed: () {
-                      setState(() {
-                        ShowCaseWidget.of(context).startShowCase(
-                            [_skey0, _skey1, _skey2, _skey3, _skey4]);
-                      });
-                    },
+      return ShowCaseWidget(
+        builder: Builder(builder: (context) {
+          return Scaffold(
+            appBar: AppBar(
+              actions: [
+                Showcase(
+                  key: _skey1,
+                  description: 'Click here for the monthly view',
+                  overlayPadding: const EdgeInsets.fromLTRB(-5, 0, 5, 0),
+                  contentPadding: const EdgeInsets.all(20),
+                  shapeBorder: const CircleBorder(),
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.calendar_month),
                   ),
-                ],
-                title: Text('Welcome: ${settings.getUser().name}',
-                    style: const TextStyle(fontSize: 18)),
-                leading: Showcase(
-                    key: _skey4,
-                    description:
-                        'Click here to access the settings menu, or logout from the application',
-                    overlayPadding: const EdgeInsets.fromLTRB(-5, 0, 5, 0),
-                    contentPadding: const EdgeInsets.all(20),
-                    shapeBorder: const CircleBorder(),
-                    child:
-                        const Icon(Icons.face_outlined) //_popupMenu(settings),
-                    ),
-                bottom: TabBar(
-                  tabs: [
-                    Showcase(
-                      key: _skey0,
-                      description: 'First tab lists all the meals',
-                      overlayPadding:
-                          const EdgeInsets.symmetric(horizontal: 15),
-                      contentPadding: const EdgeInsets.all(20),
-                      child: const Tab(
-                        child: Text(
-                          'Meals',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                    Showcase(
-                      key: _skey1,
-                      description: 'Second tab provides statistical analysis',
-                      overlayPadding:
-                          const EdgeInsets.symmetric(horizontal: 15),
-                      contentPadding: const EdgeInsets.all(50),
-                      child: const Tab(
-                        child: Text(
-                          'Statistics',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ), /*
-                  Showcase(
-                    key: _skey2,
-                    description:
-                        'Third tab shows your activity and your progress relative to the target you have set',
-                    overlayPadding: EdgeInsets.symmetric(horizontal: 15),
-                    contentPadding: EdgeInsets.all(20),
-                    child: Tab(
-                      child: Text(
-                        'Activity',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ),
-                  Showcase(
-                    key: _skey3,
-                    description:
-                        'The last tab shows shared routines by other users',
-                    overlayPadding: EdgeInsets.symmetric(horizontal: 15),
-                    contentPadding: EdgeInsets.all(20),
-                    child: Tab(
-                      child: Text(
-                        'Social',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ),*/
-                  ],
                 ),
-              ),
-              body: Stack(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage("assets/images/background.jpg"),
-                        fit: BoxFit.cover,
-                      ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (BuildContext context) {
+                        return StatsPage();
+                      }),
+                    ).then((value) {
+                      setState(() {});
+                    });
+                  },
+                  icon:
+                      const Icon(IconData(0xf5a9, fontFamily: 'MaterialIcons')),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.help_rounded),
+                  onPressed: () {
+                    setState(() {
+                      ShowCaseWidget.of(context).startShowCase(
+                          [_skey0, _skey1, _skey2, _skey3, _skey4]);
+                    });
+                  },
+                ),
+              ],
+              title: Text('Welcome: ${settings.getUser().name}',
+                  style: const TextStyle(fontSize: 18)),
+            ),
+            drawer: _drawer(context),
+            body: Stack(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/background.jpg"),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  const TabBarView(
-                    children: [
-                      MealsPage(),
-                      StatsPage(),
-                      //SocialPage(),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
-        ),
+                ),
+                MealsPage(),
+              ],
+            ),
+          );
+        }),
       );
     });
   }
+}
+
+Widget _drawer(context) {
+  return Drawer(
+    child: ListView(
+      children: [
+        _drawerHeader(context),
+        _drawerItem(context, 'Settings', Icon(Icons.settings)),
+        _drawerItem(context, 'About', Icon(Icons.info)),
+      ],
+    ),
+  );
+}
+
+Widget _drawerItem(context, String text, Icon icon) {
+  return Material(
+    child: InkWell(
+      child: Container(
+        margin: EdgeInsets.fromLTRB(15, 15, 15, 0),
+        child: Row(children: [
+          Expanded(child: icon),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            flex: 4,
+          ),
+        ]),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+      },
+    ),
+  );
+}
+
+Widget _drawerHeader(context) {
+  return Container(
+    padding: EdgeInsets.all(20),
+    color: Colors.lightBlue,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          height: 70,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(
+              image: AssetImage("assets/icon/yoga_icon_circular.png"),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          'Sandesh Goel',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Text(
+          'email@domain.com',
+          style: TextStyle(
+            color: Colors.grey[200],
+            fontSize: 12,
+            fontStyle: FontStyle.italic,
+          ),
+        )
+      ],
+    ),
+  );
+}
 /*
   Widget _popupMenu(settings) {
     GoogleSignInProvider _google =
@@ -271,4 +300,5 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
   */
-}
+
+

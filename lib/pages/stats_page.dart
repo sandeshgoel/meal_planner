@@ -10,6 +10,13 @@ class StatsPage extends StatefulWidget {
 class _StatsPageState extends State<StatsPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Statistics'),
+      ),
+      body: Container(
+        child: Center(child: Text('Stats Page')),
+      ),
+    );
   }
 }
