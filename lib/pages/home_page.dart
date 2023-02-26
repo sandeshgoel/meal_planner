@@ -103,7 +103,7 @@ Widget _drawerItem(context, String text, Icon icon) {
   return Material(
     child: InkWell(
       child: Container(
-        margin: EdgeInsets.fromLTRB(15, 15, 15, 0),
+        margin: EdgeInsets.fromLTRB(15, 10, 15, 10),
         child: Row(children: [
           Expanded(child: icon),
           Expanded(

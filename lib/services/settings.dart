@@ -1,6 +1,9 @@
 // ------------------------------------------------------
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInfo {
   late String uid;
@@ -113,7 +116,7 @@ class YogaSettings with ChangeNotifier {
   }
 
   // ----------------------------------------------------
-/*
+
   void settingsFromJson(Map<String, dynamic> jval) {
     _user = UserInfo.fromJson(jval['user'] ?? (_user).toJson());
     _notify = jval['notify'] ?? _notify;
@@ -155,7 +158,7 @@ class YogaSettings with ChangeNotifier {
       return false;
     }
   }
-*/
+
   // ----------------------------------------------------
 
   void setNotify(bool notify) {
