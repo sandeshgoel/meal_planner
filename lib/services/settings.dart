@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:meal_planner/services/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInfo {
@@ -138,6 +139,8 @@ class YogaSettings with ChangeNotifier {
     String value = jsonEncode(jval);
     print('**** Saving settings');
     prefs.setString('meal-settings', value);
+
+    await DBService(uid: _user.uid, email: _user.email).updateUserData(this);
   }
 
   void loadSettings() async {

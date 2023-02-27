@@ -1,10 +1,16 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:meal_planner/pages/edit_settings_page.dart';
 import 'package:meal_planner/pages/meals_page.dart';
 import 'package:meal_planner/pages/stats_page.dart';
+import 'package:meal_planner/services/auth.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:provider/provider.dart';
 
 import 'package:meal_planner/services/settings.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key}) : super(key: key);
@@ -14,7 +20,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //final AuthService _auth = AuthService();
+  final AuthService _auth = AuthService();
   final _skey0 = GlobalKey();
   final _skey1 = GlobalKey();
   final _skey2 = GlobalKey();
@@ -63,10 +69,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               ],
-              title: Text('Welcome: ${settings.getUser().name}',
-                  style: const TextStyle(fontSize: 18)),
+              title: Text('Meal Planner', style: const TextStyle(fontSize: 18)),
             ),
-            drawer: _drawer(context),
+            drawer: _drawer(context, settings),
             body: Stack(
               children: [
                 Container(
@@ -85,174 +90,99 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     });
   }
-}
 
-Widget _drawer(context) {
-  return Drawer(
-    child: ListView(
-      children: [
-        _drawerHeader(context),
-        _drawerItem(context, 'Settings', Icon(Icons.settings)),
-        _drawerItem(context, 'About', Icon(Icons.info)),
-      ],
-    ),
-  );
-}
-
-Widget _drawerItem(context, String text, Icon icon) {
-  return Material(
-    child: InkWell(
-      child: Container(
-        margin: EdgeInsets.fromLTRB(15, 10, 15, 10),
-        child: Row(children: [
-          Expanded(child: icon),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            flex: 4,
-          ),
-        ]),
+  Widget _drawer(context, settings) {
+    return Drawer(
+      child: ListView(
+        children: [
+          _drawerHeader(context, settings),
+          _drawerItem(
+              context, 'Goels Meal plan (Admin)', Icon(Icons.note), () {}),
+          _drawerItem(
+              context, 'Switch Meal plan', Icon(Icons.switch_account), () {}),
+          Divider(),
+          _drawerItem(context, 'Settings', Icon(Icons.settings), _editSettings),
+          _drawerItem(context, 'About', Icon(Icons.info), _about),
+          _drawerItem(context, 'Logout', Icon(Icons.logout), _logout),
+        ],
       ),
-      onTap: () {
-        Navigator.pop(context);
-      },
-    ),
-  );
-}
+    );
+  }
 
-Widget _drawerHeader(context) {
-  return Container(
-    padding: EdgeInsets.all(20),
-    color: Colors.lightBlue,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          height: 70,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: AssetImage("assets/icon/yoga_icon_circular.png"),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Text(
-          'Sandesh Goel',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        Text(
-          'email@domain.com',
-          style: TextStyle(
-            color: Colors.grey[200],
-            fontSize: 12,
-            fontStyle: FontStyle.italic,
-          ),
-        )
-      ],
-    ),
-  );
-}
-/*
-  Widget _popupMenu(settings) {
+  void _logout() async {
     GoogleSignInProvider _google =
         Provider.of<GoogleSignInProvider>(context, listen: false);
+    await _auth.signOut();
+    if (!kIsWeb) await _google.googleSignOut();
+  }
+
+  Widget _drawerItem(context, String text, Icon icon, fn) {
+    return Material(
+      child: InkWell(
+        child: Container(
+          margin: EdgeInsets.fromLTRB(15, 10, 15, 10),
+          child: Row(children: [
+            Expanded(child: icon),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              flex: 4,
+            ),
+          ]),
+        ),
+        onTap: () {
+          fn();
+        },
+      ),
+    );
+  }
+
+  Widget _drawerHeader(context, settings) {
     var _photo = settings.getUser().photo;
 
-    return PopupMenuButton(
-      icon: Container(
-        margin: EdgeInsets.only(left: 10),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(width: 1, color: Colors.yellow),
-          image: DecorationImage(
-            fit: BoxFit.contain,
-            image: (_photo == '')
-                ? AssetImage("assets/icon/yoga_icon_circular.png")
-                    as ImageProvider
-                : NetworkImage(_photo),
+    return Container(
+      padding: EdgeInsets.all(20),
+      color: Colors.lightBlue,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 70,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: NetworkImage(
+                    _photo), // AssetImage("assets/icon/yoga_icon_circular.png"),
+              ),
+            ),
           ),
-        ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            settings.getUser().name,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            settings.getUser().email,
+            style: TextStyle(
+              color: Colors.grey[200],
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+            ),
+          )
+        ],
       ),
-      color: Colors.white,
-      offset: Offset(0, 50),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10))),
-      itemBuilder: (context) => [
-        PopupMenuItem<int>(
-          value: 0,
-          child: Row(
-            children: [
-              Icon(
-                Icons.settings,
-                color: Colors.black,
-              ),
-              Text(
-                "  Settings",
-                style: TextStyle(color: Colors.black),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem<int>(
-          value: 1,
-          child: Row(
-            children: [
-              Icon(
-                Icons.logout,
-                color: Colors.black,
-              ),
-              Text(
-                "  Log out",
-                style: TextStyle(color: Colors.black),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem<int>(
-          value: 2,
-          child: Row(
-            children: [
-              Icon(
-                Icons.info,
-                color: Colors.black,
-              ),
-              Text(
-                "  About",
-                style: TextStyle(color: Colors.black),
-              ),
-            ],
-          ),
-        ),
-      ],
-      onSelected: (item) async {
-        switch (item) {
-          case 0:
-            _editSettings();
-            break;
-          case 1:
-            await _auth.signOut();
-            await _google.googleSignOut();
-            break;
-          case 2:
-            await _about();
-            break;
-          default:
-            print('invalid item $item');
-        }
-      },
     );
   }
 
@@ -272,11 +202,11 @@ Widget _drawerHeader(context) {
       children: [
         RichText(
           text: TextSpan(
-            text: 'https://sites.google.com/view/yogabuddy',
+            text: 'https://sites.google.com/view/mealplanner',
             style: TextStyle(color: Colors.blue),
             recognizer: TapGestureRecognizer()
               ..onTap = () async {
-                final url = 'https://sites.google.com/view/yogabuddy';
+                final url = 'https://sites.google.com/view/mealplanner';
                 if (await canLaunchUrlString(url)) {
                   await launchUrlString(
                     url,
@@ -297,8 +227,7 @@ Widget _drawerHeader(context) {
       }),
     ).then((value) {
       setState(() {});
+      Navigator.pop(context);
     });
   }
-  */
-
-
+}
