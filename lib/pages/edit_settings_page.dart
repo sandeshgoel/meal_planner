@@ -147,7 +147,7 @@ class _EditSettingsPageState extends State<EditSettingsPage> {
   static const String topicNotify = 'notify';
 
   Widget _infoIcon(String topic) {
-    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    //YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
 
     String msg = '';
     switch (topic) {

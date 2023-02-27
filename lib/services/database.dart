@@ -4,11 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_planner/services/settings.dart';
 
 class DBService {
-  final String uid;
   final String email;
   static Map<String, dynamic> _lastCfg = {};
 
-  DBService({required this.uid, required this.email});
+  DBService({required this.email});
 
 // -------------------------------------------------
 
@@ -32,17 +31,28 @@ class DBService {
   Future getUserData() async {
     return await cfgCollection.doc(email).get();
   }
-/*
-  Future getOtherUserData(String otherEmail) async {
-    return await cfgCollection.doc(otherEmail).get();
+
+// -------------------------------------------------
+
+  final CollectionReference mpCollection =
+      FirebaseFirestore.instance.collection('mealplans');
+
+  Future<String> addMealPlan(Map<String, dynamic> mp) async {
+    String docId = '';
+
+    print('Writing to DB mealplan ...');
+    await mpCollection.add(mp).then((documentSnapshot) {
+      docId = documentSnapshot.id;
+      print("Added Data with ID: ${docId}");
+    });
+    return docId;
   }
 
-  Future getOtherUserDataByEmail(String otherEmail) async {
-    QuerySnapshot ref =
-        await cfgCollection.where('user.email', isEqualTo: otherEmail).get();
-
-    for (var doc in ref.docs) return doc;
-    return null;
+  Future getMealPlan(String docId) async {
+    print('Getting from meal plan, doc id $docId ...');
+    return await mpCollection.doc(docId).get();
   }
-  */
+
+// -------------------------------------------------
+
 }

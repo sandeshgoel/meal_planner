@@ -125,7 +125,7 @@ class _WrapperState extends State<Wrapper> {
         '_rightAfterSignIn: Signed in user ${settings.getUser()}, reading DB now ..');
 
     // read rest of the settings from DB
-    var doc = await DBService(uid: user.uid, email: user.email).getUserData();
+    var doc = await DBService(email: user.email).getUserData();
     var cfg = doc.data();
     if (cfg != null)
       settings.settingsFromJson(cfg);
@@ -133,7 +133,11 @@ class _WrapperState extends State<Wrapper> {
       print('_rightAfterSignIn: DB returned null record for ${user.uid}!!');
 
     // save all settings back to DB
-    settings.saveSettings();
+    print('_rightAfterSignIn: saving to DB now ..');
+    await settings.saveSettings();
+    print('_rightAfterSignIn: saved to DB  ..');
     //settings.setLoadComplete(true);
+
+    await settings.getAllMealPlans();
   }
 }

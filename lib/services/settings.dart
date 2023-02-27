@@ -2,8 +2,9 @@
 
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:meal_planner/services/database.dart';
+import 'package:meal_planner/services/meal_plan.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInfo {
@@ -18,7 +19,7 @@ class UserInfo {
   }
 
   void initUser() {
-    name = 'Goels';
+    name = '';
     email = '';
     uid = '';
     photo = '';
@@ -62,11 +63,52 @@ class UserInfo {
 }
 
 // ------------------------------------------------------
+enum MpRole { admin, member, viewer }
+
+class MealPlanRole {
+  late String mpid;
+  late MpRole mpRole;
+
+  MealPlanRole(this.mpid, this.mpRole);
+
+  Map<String, dynamic> toJson() {
+    return {
+      'mpid': this.mpid,
+      'mpRole': describeEnum(this.mpRole),
+    };
+  }
+
+  MealPlanRole.fromJson(Map<String, dynamic> jval) {
+    this.mpid = jval['mpid'];
+    this.mpRole = strToRole(jval['mpRole']);
+  }
+
+  static MpRole strToRole(String r) {
+    MpRole res = MpRole.values.firstWhere(
+        (element) => describeEnum(element) == r,
+        orElse: () => MpRole.viewer);
+
+    return res;
+  }
+
+  bool equals(MealPlanRole mp) {
+    if ((this.mpid == mp.mpid) & (this.mpRole == mp.mpRole))
+      return true;
+    else
+      return false;
+  }
+}
+
+// ------------------------------------------------------
 
 class YogaSettings with ChangeNotifier {
   late UserInfo _user;
 
+  late List<MealPlanRole> _mprs;
   late bool _notify;
+
+  // cached only, not written to DB
+  late List<MealPlan> mealPlans;
 
   YogaSettings() {
     initSettings();
@@ -79,6 +121,8 @@ class YogaSettings with ChangeNotifier {
     _user = UserInfo();
     _user.initUser();
 
+    _mprs = [];
+    mealPlans = [];
     _notify = defNotify;
   }
 
@@ -120,6 +164,9 @@ class YogaSettings with ChangeNotifier {
 
   void settingsFromJson(Map<String, dynamic> jval) {
     _user = UserInfo.fromJson(jval['user'] ?? (_user).toJson());
+    _mprs = (jval['mps'] ?? (this._mprs.map((e) => e.toJson()).toList()))
+        .map<MealPlanRole>((x) => MealPlanRole.fromJson(x))
+        .toList();
     _notify = jval['notify'] ?? _notify;
 
     notifyListeners();
@@ -128,11 +175,12 @@ class YogaSettings with ChangeNotifier {
   Map<String, dynamic> settingsToJson() {
     return {
       'user': (_user).toJson(),
+      'mprs': this._mprs.map((e) => e.toJson()).toList(),
       'notify': _notify,
     };
   }
 
-  void saveSettings() async {
+  Future saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
     Map<String, dynamic> jval = settingsToJson();
@@ -140,7 +188,7 @@ class YogaSettings with ChangeNotifier {
     print('**** Saving settings');
     prefs.setString('meal-settings', value);
 
-    await DBService(uid: _user.uid, email: _user.email).updateUserData(this);
+    await DBService(email: _user.email).updateUserData(this);
   }
 
   void loadSettings() async {
@@ -154,12 +202,50 @@ class YogaSettings with ChangeNotifier {
     }
   }
 
+  bool mpsEquals(List<MealPlanRole> mps) {
+    if (this._mprs.length != mps.length) return false;
+    for (int i = 0; i < mps.length; i++) {
+      if (!this._mprs[i].equals(mps[i])) return false;
+    }
+    return true;
+  }
+
   bool equals(YogaSettings cfg) {
-    if (_user.equals(cfg._user) & (_notify == cfg._notify)) {
+    if (_user.equals(cfg._user) &
+        (mpsEquals(cfg._mprs)) &
+        (_notify == cfg._notify)) {
       return true;
     } else {
       return false;
     }
+  }
+  // ----------------------------------------------------
+
+  void addMpRole(MealPlanRole mprole, MealPlan mp) {
+    this._mprs.add(mprole);
+    this.mealPlans.add(mp);
+    saveSettings();
+  }
+
+  List<MealPlanRole> getMprs() {
+    return this._mprs;
+  }
+
+  Future<MealPlan> getMealPlan(String mpid) async {
+    var doc = await DBService(email: _user.email).getMealPlan(mpid);
+    var cfg = doc.data();
+    if (cfg != null)
+      return MealPlan.fromJson(cfg);
+    else {
+      print('Meal plan not found in DB, id $mpid');
+      return MealPlan();
+    }
+  }
+
+  Future getAllMealPlans() async {
+    mealPlans = [];
+    for (int i = 0; i < _mprs.length; i++)
+      mealPlans.add(await getMealPlan(_mprs[i].mpid));
   }
 
   // ----------------------------------------------------

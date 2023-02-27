@@ -2,9 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_planner/pages/edit_settings_page.dart';
+import 'package:meal_planner/pages/manage_plan_page.dart';
 import 'package:meal_planner/pages/meals_page.dart';
 import 'package:meal_planner/pages/stats_page.dart';
 import 'package:meal_planner/services/auth.dart';
+import 'package:meal_planner/services/database.dart';
+import 'package:meal_planner/services/meal_plan.dart';
+import 'package:meal_planner/shared/constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:provider/provider.dart';
@@ -98,15 +102,47 @@ class _MyHomePageState extends State<MyHomePage> {
           _drawerHeader(context, settings),
           _drawerItem(
               context, 'Goels Meal plan (Admin)', Icon(Icons.note), () {}),
+          Divider(),
+          _drawerItem(context, 'Switch Meal plan', Icon(Icons.switch_account),
+              _switchMealPlan),
           _drawerItem(
-              context, 'Switch Meal plan', Icon(Icons.switch_account), () {}),
+              context, 'Manage Meal plans', Icon(Icons.edit), _manageMealPlan),
+          _drawerItem(context, 'Logout', Icon(Icons.logout), _logout),
           Divider(),
           _drawerItem(context, 'Settings', Icon(Icons.settings), _editSettings),
           _drawerItem(context, 'About', Icon(Icons.info), _about),
-          _drawerItem(context, 'Logout', Icon(Icons.logout), _logout),
         ],
       ),
     );
+  }
+
+  Future<List<MealPlan>> getMealPlans(settings) async {
+    List<MealPlanRole> mps = settings.getMprs();
+    List<MealPlan> res = [];
+
+    for (var i = 0; i < mps.length; i++) {
+      MealPlan mp = await settings.getMealPlan(mps[i].mpid);
+      res.add(mp);
+    }
+
+    return res;
+  }
+
+  void _switchMealPlan() async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+
+    List<MealPlan> mplist = await getMealPlans(settings);
+    showMsg(context, mplist.map((e) => e.name).toList().join('\n'));
+  }
+
+  void _manageMealPlan() async {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (BuildContext context) {
+        return ManagePage();
+      }),
+    ).then((value) {
+      setState(() {});
+    });
   }
 
   void _logout() async {
