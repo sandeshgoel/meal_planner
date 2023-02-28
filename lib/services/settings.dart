@@ -105,10 +105,12 @@ class YogaSettings with ChangeNotifier {
   late UserInfo _user;
 
   late List<MealPlanRole> _mprs;
+  late int _curMpIndex;
   late bool _notify;
 
   // cached only, not written to DB
   late List<MealPlan> mealPlans;
+  late bool loadComplete;
 
   YogaSettings() {
     initSettings();
@@ -122,8 +124,11 @@ class YogaSettings with ChangeNotifier {
     _user.initUser();
 
     _mprs = [];
-    mealPlans = [];
+    _curMpIndex = 0;
     _notify = defNotify;
+
+    mealPlans = [];
+    loadComplete = false;
   }
 
   bool allDefaults() {
@@ -164,9 +169,10 @@ class YogaSettings with ChangeNotifier {
 
   void settingsFromJson(Map<String, dynamic> jval) {
     _user = UserInfo.fromJson(jval['user'] ?? (_user).toJson());
-    _mprs = (jval['mps'] ?? (this._mprs.map((e) => e.toJson()).toList()))
+    _mprs = (jval['mprs'] ?? (this._mprs.map((e) => e.toJson()).toList()))
         .map<MealPlanRole>((x) => MealPlanRole.fromJson(x))
         .toList();
+    _curMpIndex = jval['curMpIndex'] ?? _curMpIndex;
     _notify = jval['notify'] ?? _notify;
 
     notifyListeners();
@@ -176,6 +182,7 @@ class YogaSettings with ChangeNotifier {
     return {
       'user': (_user).toJson(),
       'mprs': this._mprs.map((e) => e.toJson()).toList(),
+      'curMpIndex': _curMpIndex,
       'notify': _notify,
     };
   }
@@ -213,6 +220,7 @@ class YogaSettings with ChangeNotifier {
   bool equals(YogaSettings cfg) {
     if (_user.equals(cfg._user) &
         (mpsEquals(cfg._mprs)) &
+        (_curMpIndex == cfg._curMpIndex) &
         (_notify == cfg._notify)) {
       return true;
     } else {
@@ -242,10 +250,32 @@ class YogaSettings with ChangeNotifier {
     }
   }
 
+  Future addMealPlan(String name) async {
+    String email = _user.email;
+    MealPlan mp = MealPlan(name: name, creator: email, admins: [email]);
+    String mpId = await DBService(email: email).addMealPlan(mp.toJson());
+    MealPlanRole mprole = MealPlanRole(mpId, MpRole.admin);
+    addMpRole(mprole, mp);
+  }
+
   Future getAllMealPlans() async {
+    if (_mprs.length == 0) addMealPlan('My Meal Plan');
+
     mealPlans = [];
     for (int i = 0; i < _mprs.length; i++)
       mealPlans.add(await getMealPlan(_mprs[i].mpid));
+
+    print(
+        'getAllMealPlans: MPR len=${_mprs.length}, MP len=${mealPlans.length}');
+  }
+  // ----------------------------------------------------
+
+  void setCurMpIndex(int val) {
+    _curMpIndex = val;
+  }
+
+  int getCurMpIndex() {
+    return _curMpIndex;
   }
 
   // ----------------------------------------------------
@@ -257,4 +287,6 @@ class YogaSettings with ChangeNotifier {
   bool getNotify() {
     return _notify;
   }
+
+  // ----------------------------------------------------
 }

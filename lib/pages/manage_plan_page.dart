@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +14,20 @@ class ManagePage extends StatefulWidget {
 }
 
 class _ManagePageState extends State<ManagePage> {
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<YogaSettings>(builder: (context, settings, _) {
@@ -34,14 +48,35 @@ class _ManagePageState extends State<ManagePage> {
 
   void _addMealPlan() async {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
-    String email = settings.getUser().email;
 
-    MealPlan mp =
-        MealPlan(name: 'Goels Meal Plan', creator: email, admins: [email]);
-    String mpId = await DBService(email: email).addMealPlan(mp.toJson());
-    MealPlanRole mprole = MealPlanRole(mpId, MpRole.admin);
-    settings.addMpRole(mprole, mp);
-    showMsg(context, 'Added Meal Plan');
+    String name = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Meal Plan Name',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration:
+              InputDecoration(hintText: 'Enter the name of meal plan ...'),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(controller.text),
+              child: Text('Submit'))
+        ],
+      ),
+    );
+
+    if (settings.mealPlans.any((x) => x.name == name)) {
+      showMsg(context, 'Meal Plan \'$name\' already exists!!');
+    } else {
+      settings.addMealPlan(name);
+      showMsg(context, 'Added Meal Plan');
+    }
+    setState(() {});
   }
 
   Widget _mealPlanTile(YogaSettings settings, MealPlanRole mpr, MealPlan r) {
@@ -72,7 +107,7 @@ class _ManagePageState extends State<ManagePage> {
                     ],
                   ),
                   Text(
-                    '${mpr.mpRole}(creator:${r.creator})',
+                    '${describeEnum(mpr.mpRole)}(creator:${r.creator})',
                     style: TextStyle(fontSize: 10),
                   )
                 ],

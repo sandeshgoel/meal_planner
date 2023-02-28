@@ -6,7 +6,6 @@ import 'package:meal_planner/pages/manage_plan_page.dart';
 import 'package:meal_planner/pages/meals_page.dart';
 import 'package:meal_planner/pages/stats_page.dart';
 import 'package:meal_planner/services/auth.dart';
-import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
 import 'package:meal_planner/shared/constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -31,77 +30,121 @@ class _MyHomePageState extends State<MyHomePage> {
   final _skey3 = GlobalKey();
   final _skey4 = GlobalKey();
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<YogaSettings>(builder: (context, settings, _) {
-      return ShowCaseWidget(
-        builder: Builder(builder: (context) {
-          return Scaffold(
-            appBar: AppBar(
-              actions: [
-                Showcase(
-                  key: _skey1,
-                  description: 'Click here for the monthly view',
-                  overlayPadding: const EdgeInsets.fromLTRB(-5, 0, 5, 0),
-                  contentPadding: const EdgeInsets.all(20),
-                  shapeBorder: const CircleBorder(),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.calendar_month),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (BuildContext context) {
-                        return StatsPage();
-                      }),
-                    ).then((value) {
-                      setState(() {});
-                    });
-                  },
-                  icon:
-                      const Icon(IconData(0xf5a9, fontFamily: 'MaterialIcons')),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.help_rounded),
-                  onPressed: () {
-                    setState(() {
-                      ShowCaseWidget.of(context).startShowCase(
-                          [_skey0, _skey1, _skey2, _skey3, _skey4]);
-                    });
-                  },
-                ),
-              ],
-              title: Text('Meal Planner', style: const TextStyle(fontSize: 18)),
-            ),
-            drawer: _drawer(context, settings),
-            body: Stack(
-              children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage("assets/images/background.jpg"),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                MealsPage(),
-              ],
-            ),
-          );
-        }),
-      );
-    });
+  Future<bool> _shared() async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    while (!settings.loadComplete)
+      await Future.delayed(Duration(milliseconds: 100));
+    return true;
   }
 
-  Widget _drawer(context, settings) {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _shared(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        Widget ret = Container();
+
+        if (snapshot.hasData) {
+          ret = Consumer<YogaSettings>(builder: (context, settings, _) {
+            return ShowCaseWidget(
+              builder: Builder(builder: (context) {
+                return Scaffold(
+                  appBar: AppBar(
+                    actions: [
+                      Showcase(
+                        key: _skey1,
+                        description: 'Click here for the monthly view',
+                        overlayPadding: const EdgeInsets.fromLTRB(-5, 0, 5, 0),
+                        contentPadding: const EdgeInsets.all(20),
+                        shapeBorder: const CircleBorder(),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.calendar_month),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (BuildContext context) {
+                              return StatsPage();
+                            }),
+                          ).then((value) {
+                            setState(() {});
+                          });
+                        },
+                        icon: const Icon(
+                            IconData(0xf5a9, fontFamily: 'MaterialIcons')),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.help_rounded),
+                        onPressed: () {
+                          setState(() {
+                            ShowCaseWidget.of(context).startShowCase(
+                                [_skey0, _skey1, _skey2, _skey3, _skey4]);
+                          });
+                        },
+                      ),
+                    ],
+                    title: Text('Meal Planner',
+                        style: const TextStyle(fontSize: 18)),
+                  ),
+                  drawer: _drawer(context, settings),
+                  body: Stack(
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/images/background.jpg"),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      MealsPage(),
+                    ],
+                  ),
+                );
+              }),
+            );
+          });
+        } else {
+          ret = Scaffold(
+              appBar: AppBar(title: Text('Loading ...')),
+              body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 60),
+                    Container(
+                      child: CircularProgressIndicator(),
+                      width: 60,
+                      height: 60,
+                      alignment: Alignment.center,
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text('Loading settings ...'),
+                      alignment: Alignment.center,
+                    )
+                  ]));
+        }
+        return ret;
+      },
+    );
+  }
+
+  Widget _drawer(context, YogaSettings settings) {
+    int index = settings.getCurMpIndex();
+    print(
+        '_drawer: curMpIndex=$index, MP len=${settings.mealPlans.length}, MPR len=${settings.getMprs().length}');
+    String mpName = settings.mealPlans[index].name;
+    MpRole mpRole = settings.getMprs()[index].mpRole;
+
     return Drawer(
       child: ListView(
         children: [
           _drawerHeader(context, settings),
-          _drawerItem(
-              context, 'Goels Meal plan (Admin)', Icon(Icons.note), () {}),
+          _drawerItem(context, '$mpName (${describeEnum(mpRole)})',
+              Icon(Icons.note), () {}),
           Divider(),
           _drawerItem(context, 'Switch Meal plan', Icon(Icons.switch_account),
               _switchMealPlan),

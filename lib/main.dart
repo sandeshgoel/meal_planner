@@ -136,8 +136,14 @@ class _WrapperState extends State<Wrapper> {
     print('_rightAfterSignIn: saving to DB now ..');
     await settings.saveSettings();
     print('_rightAfterSignIn: saved to DB  ..');
-    //settings.setLoadComplete(true);
 
+    // cache details of all my meal plans
     await settings.getAllMealPlans();
+    if (settings.getCurMpIndex() > settings.mealPlans.length) {
+      print(
+          'ERROR: curMpIndex ${settings.getCurMpIndex()}, mealplans ${settings.mealPlans.length}');
+      settings.setCurMpIndex(0);
+    }
+    settings.loadComplete = true;
   }
 }
