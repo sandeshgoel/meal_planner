@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_planner/pages/edit_settings_page.dart';
 import 'package:meal_planner/pages/manage_plan_page.dart';
+import 'package:meal_planner/pages/meal_library_page.dart';
 import 'package:meal_planner/pages/meals_page.dart';
 import 'package:meal_planner/pages/stats_page.dart';
 import 'package:meal_planner/services/auth.dart';
@@ -46,6 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
         if (snapshot.hasData) {
           ret = Consumer<YogaSettings>(builder: (context, settings, _) {
+            String mpName = settings.mealPlans[settings.getCurMpIndex()].name;
+
             return ShowCaseWidget(
               builder: Builder(builder: (context) {
                 return Scaffold(
@@ -85,8 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                       ),
                     ],
-                    title: Text('Meal Planner',
-                        style: const TextStyle(fontSize: 18)),
+                    title: Text(mpName, style: const TextStyle(fontSize: 18)),
                   ),
                   drawer: _drawer(context, settings),
                   body: Stack(
@@ -108,24 +110,26 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         } else {
           ret = Scaffold(
-              appBar: AppBar(title: Text('Loading ...')),
-              body: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 60),
-                    Container(
-                      child: CircularProgressIndicator(),
-                      width: 60,
-                      height: 60,
-                      alignment: Alignment.center,
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Text('Loading settings ...'),
-                      alignment: Alignment.center,
-                    )
-                  ]));
+            appBar: AppBar(title: Text('Loading ...')),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 60),
+                Container(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.center,
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Text('Loading settings ...'),
+                  alignment: Alignment.center,
+                )
+              ],
+            ),
+          );
         }
         return ret;
       },
@@ -153,6 +157,8 @@ class _MyHomePageState extends State<MyHomePage> {
           _drawerItem(context, 'Logout', Icon(Icons.logout), _logout),
           Divider(),
           _drawerItem(context, 'Settings', Icon(Icons.settings), _editSettings),
+          _drawerItem(
+              context, 'Meals Library', Icon(Icons.library_add), _mealLib),
           _drawerItem(context, 'About', Icon(Icons.info), _about),
         ],
       ),
@@ -182,6 +188,16 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (BuildContext context) {
         return ManagePage();
+      }),
+    ).then((value) {
+      setState(() {});
+    });
+  }
+
+  void _mealLib() async {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (BuildContext context) {
+        return MealLibrary();
       }),
     ).then((value) {
       setState(() {});

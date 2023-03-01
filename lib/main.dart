@@ -8,6 +8,7 @@ import 'package:meal_planner/pages/authenticate_page.dart';
 import 'package:meal_planner/pages/email_verify_page.dart';
 import 'package:meal_planner/services/auth.dart';
 import 'package:meal_planner/services/database.dart';
+import 'package:meal_planner/services/meal_plan.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'firebase_options.dart';
 
@@ -144,6 +145,14 @@ class _WrapperState extends State<Wrapper> {
           'ERROR: curMpIndex ${settings.getCurMpIndex()}, mealplans ${settings.mealPlans.length}');
       settings.setCurMpIndex(0);
     }
+
+    // cache all meals
+    List<Meal> meals = await DBService(email: user.email).getMeals();
+    for (Meal meal in meals) {
+      settings.meals[meal.label] = meal.display_name;
+    }
+
+    // signal that loading is complete
     settings.loadComplete = true;
   }
 }

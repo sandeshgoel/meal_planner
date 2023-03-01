@@ -109,6 +109,7 @@ class YogaSettings with ChangeNotifier {
   late bool _notify;
 
   // cached only, not written to DB
+  late Map<String, String> meals;
   late List<MealPlan> mealPlans;
   late bool loadComplete;
 
@@ -127,6 +128,7 @@ class YogaSettings with ChangeNotifier {
     _curMpIndex = 0;
     _notify = defNotify;
 
+    meals = {};
     mealPlans = [];
     loadComplete = false;
   }
@@ -246,7 +248,7 @@ class YogaSettings with ChangeNotifier {
       return MealPlan.fromJson(cfg);
     else {
       print('Meal plan not found in DB, id $mpid');
-      return MealPlan();
+      return MealPlan(name: 'Default');
     }
   }
 
