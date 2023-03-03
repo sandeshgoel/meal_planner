@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_planner/services/meal_plan.dart';
@@ -59,15 +60,17 @@ class DBService {
   final CollectionReference mpDataCollection =
       FirebaseFirestore.instance.collection('mealplanData');
 
-  Future<String> addMealPlanData(Map<String, dynamic> mpd) async {
-    String docId = '';
-
-    print('Writing to DB mealplanData ...');
-    await mpDataCollection.add(mpd).then((documentSnapshot) {
-      docId = documentSnapshot.id;
-      print("Added Data with ID: ${docId}");
-    });
-    return docId;
+  Future addMealPlanData(Map<String, dynamic> mpd) async {
+    QuerySnapshot queryRef = await getMealPlanData(mpd['mpid'], mpd['date']);
+    if (queryRef.docs.length == 0) {
+      print('Adding to DB mealplanData ...');
+      await mpDataCollection.add(mpd);
+    } else if (queryRef.docs.length == 1) {
+      print('Updating DB mealplanData ...');
+      await mpDataCollection.doc(queryRef.docs[0].id).update(mpd);
+    } else
+      print(
+          'ERROR: ${queryRef.docs.length} docs for ${mpd['mpid']},${mpd['date']}');
   }
 
   Future<QuerySnapshot> getMealPlanData(String mpid, DateTime date) async {
@@ -78,9 +81,9 @@ class DBService {
         .get();
   }
 
-  Future<QuerySnapshot> getMealPlanDataWeek(
-      String mpid, DateTime startDate) async {
-    DateTime endDate = startDate.add(Duration(days: 7));
+  Future<QuerySnapshot> getMealPlanDataDuration(
+      String mpid, DateTime startDate, int numDays) async {
+    DateTime endDate = startDate.add(Duration(days: numDays));
     print('Getting from mealplanData, mpid $mpid $startDate $endDate...');
 
     return await mpDataCollection

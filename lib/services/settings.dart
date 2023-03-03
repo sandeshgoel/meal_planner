@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
@@ -111,6 +112,7 @@ class YogaSettings with ChangeNotifier {
   // cached only, not written to DB
   late Map<String, String> meals;
   late List<MealPlan> mealPlans;
+  late Map<DateTime, DayMeal> mealPlanData;
   late bool loadComplete;
 
   YogaSettings() {
@@ -130,6 +132,7 @@ class YogaSettings with ChangeNotifier {
 
     meals = {};
     mealPlans = [];
+    mealPlanData = {};
     loadComplete = false;
   }
 
@@ -241,6 +244,8 @@ class YogaSettings with ChangeNotifier {
     return this._mprs;
   }
 
+  // ----------------------------------------------------
+
   Future<MealPlan> getMealPlan(String mpid) async {
     var doc = await DBService(email: _user.email).getMealPlan(mpid);
     var cfg = doc.data();
@@ -270,6 +275,41 @@ class YogaSettings with ChangeNotifier {
     print(
         'getAllMealPlans: MPR len=${_mprs.length}, MP len=${mealPlans.length}');
   }
+
+  // ----------------------------------------------------
+
+  Future getCurMealPlanData() async {
+    DateTime now = DateTime.now();
+    DateTime startDate =
+        DateTime(now.year, now.month, now.day).subtract(Duration(days: 28));
+
+    QuerySnapshot queryRef = await DBService(email: _user.email)
+        .getMealPlanDataDuration(_mprs[_curMpIndex].mpid, startDate, 7 * 9);
+
+    List<MealPlanData> mpdList =
+        queryRef.docs.map((doc) => MealPlanData.fromJson(doc.data())).toList();
+
+    for (MealPlanData mpd in mpdList) {
+      mealPlanData[mpd.date] = DayMeal(mpd.breakfast, mpd.lunch, mpd.dinner);
+      print('${mpd.date}:${mealPlanData[mpd.date]}');
+    }
+    print('mealPlanData cached, length=${mealPlanData.length}');
+  }
+
+  Future saveMealPlanData(DateTime date, DayMeal dayMeal) async {
+    Map<String, dynamic> mpd = MealPlanData(
+            mpid: _mprs[_curMpIndex].mpid,
+            date: date,
+            breakfast: dayMeal.breakfast,
+            lunch: dayMeal.lunch,
+            dinner: dayMeal.dinner)
+        .toJson();
+    print('Saving meal plan data: ${mpd.toString()}');
+
+    await DBService(email: _user.email).addMealPlanData(mpd);
+    mealPlanData[date] = dayMeal;
+  }
+
   // ----------------------------------------------------
 
   void setCurMpIndex(int val) {

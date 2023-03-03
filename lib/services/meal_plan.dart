@@ -93,3 +93,28 @@ class Meal {
     this.display_name = display_name;
   }
 }
+
+class DayMeal {
+  late String breakfast;
+  late String lunch;
+  late String dinner;
+
+  DayMeal(this.breakfast, this.lunch, this.dinner);
+
+  bool equalTo(DayMeal other) {
+    if ((breakfast == other.breakfast) &
+        (lunch == other.lunch) &
+        (dinner == other.dinner))
+      return true;
+    else
+      return false;
+  }
+
+  String toString() {
+    return '$breakfast,$lunch,$dinner';
+  }
+
+  DayMeal copy() {
+    return DayMeal(breakfast, lunch, dinner);
+  }
+}

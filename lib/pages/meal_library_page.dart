@@ -51,9 +51,44 @@ class _MealLibraryState extends State<MealLibrary> {
   Widget _listMeals(YogaSettings settings) {
     return SingleChildScrollView(
       child: Column(
-        children: settings.meals.keys
-            .map((k) => Text('$k: ${settings.meals[k]}'))
-            .toList(),
+        children: [
+              Container(
+                color: Colors.lightBlue,
+                margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                padding: const EdgeInsets.all(5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Label',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Display Name',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ] +
+            settings.meals.keys
+                .map((k) => Container(
+                    //color: Colors.lightBlue[100],
+                    margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(k),
+                            Text('${settings.meals[k]}'),
+                          ],
+                        ),
+                        Divider(),
+                      ],
+                    )))
+                .toList(),
       ),
     );
   }

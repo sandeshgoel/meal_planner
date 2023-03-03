@@ -151,6 +151,10 @@ class _WrapperState extends State<Wrapper> {
     for (Meal meal in meals) {
       settings.meals[meal.label] = meal.display_name;
     }
+    settings.meals[''] = '-';
+
+    // cache meal plan data for current meal plan
+    await settings.getCurMealPlanData();
 
     // signal that loading is complete
     settings.loadComplete = true;
