@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_planner/pages/edit_settings_page.dart';
 import 'package:meal_planner/pages/manage_plan_page.dart';
+import 'package:meal_planner/pages/manage_users_page.dart';
 import 'package:meal_planner/pages/meal_library_page.dart';
 import 'package:meal_planner/pages/meals_page.dart';
 import 'package:meal_planner/pages/stats_page.dart';
@@ -150,8 +151,6 @@ class _MyHomePageState extends State<MyHomePage> {
           _drawerItem(context, '$mpName (${describeEnum(mpRole)})',
               Icon(Icons.note), () {}),
           Divider(),
-          _drawerItem(context, 'Switch Meal plan', Icon(Icons.switch_account),
-              _switchMealPlan),
           _drawerItem(
               context, 'Manage Meal plans', Icon(Icons.edit), _manageMealPlan),
           _drawerItem(context, 'Logout', Icon(Icons.logout), _logout),
@@ -159,10 +158,24 @@ class _MyHomePageState extends State<MyHomePage> {
           _drawerItem(context, 'Settings', Icon(Icons.settings), _editSettings),
           _drawerItem(
               context, 'Meals Library', Icon(Icons.library_add), _mealLib),
+          (settings.getSuperUser()
+              ? _drawerItem(
+                  context, 'Manage Users', Icon(Icons.person), _manageUsers)
+              : Container()),
           _drawerItem(context, 'About', Icon(Icons.info), _about),
         ],
       ),
     );
+  }
+
+  void _manageUsers() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (BuildContext context) {
+        return ManageUsers();
+      }),
+    ).then((value) {
+      setState(() {});
+    });
   }
 
   Future<List<MealPlan>> getMealPlans(settings) async {
@@ -175,13 +188,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return res;
-  }
-
-  void _switchMealPlan() async {
-    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
-
-    List<MealPlan> mplist = await getMealPlans(settings);
-    showMsg(context, mplist.map((e) => e.name).toList().join('\n'));
   }
 
   void _manageMealPlan() async {
@@ -245,38 +251,52 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            height: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: NetworkImage(
-                    _photo), // AssetImage("assets/icon/yoga_icon_circular.png"),
+              Container(
+                height: 70,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: NetworkImage(
+                        _photo), // AssetImage("assets/icon/yoga_icon_circular.png"),
+                  ),
+                ),
               ),
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            settings.getUser().name,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Text(
-            settings.getUser().email,
-            style: TextStyle(
-              color: Colors.grey[200],
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-            ),
-          )
-        ],
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                settings.getUser().name,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                settings.getUser().email,
+                style: TextStyle(
+                  color: Colors.grey[200],
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ] +
+            (settings.getSuperUser()
+                ? [
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      'SUPERUSER',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ]
+                : []),
       ),
     );
   }

@@ -133,6 +133,8 @@ class _WrapperState extends State<Wrapper> {
     else
       print('_rightAfterSignIn: DB returned null record for ${user.uid}!!');
 
+    if (user.email == 'sandesh@gmail.com') settings.setSuperUser(true);
+
     // save all settings back to DB
     print('_rightAfterSignIn: saving to DB now ..');
     await settings.saveSettings();

@@ -34,6 +34,27 @@ class DBService {
     return await cfgCollection.doc(email).get();
   }
 
+  Future<List<YogaSettings>> getUsers() async {
+    print('Getting all users ...');
+    QuerySnapshot queryRef = await cfgCollection.get();
+
+    return queryRef.docs
+        .map<YogaSettings>(
+            (doc) => YogaSettings.fromJson(doc.data() as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<DocumentSnapshot> getOtherUser(String otherEmail) async {
+    DocumentSnapshot doc = await cfgCollection.doc(otherEmail).get();
+    return doc;
+  }
+
+  Future updateOtherUserData(String otherEmail, YogaSettings cfg) async {
+    Map<String, dynamic> jval = cfg.settingsToJson();
+    _lastCfg = jsonDecode(jsonEncode(jval)); // make a copy
+    await cfgCollection.doc(otherEmail).set(jval);
+    print('Updated profile for $otherEmail');
+  }
 // -------------------------------------------------
 
   final CollectionReference mpCollection =
@@ -48,6 +69,11 @@ class DBService {
       print("Added Data with ID: ${docId}");
     });
     return docId;
+  }
+
+  Future updateMealPlan(Map<String, dynamic> mp, String mpid) async {
+    await mpCollection.doc(mpid).set(mp);
+    print("Updated meal plan with ID: $mpid");
   }
 
   Future getMealPlan(String docId) async {

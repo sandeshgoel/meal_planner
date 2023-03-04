@@ -61,16 +61,11 @@ String obfuscate(String s) {
   return r;
 }
 
-String swapLeftRight(String stagename) {
-  List<String> words = stagename.split(' ');
-  for (var i = 0; i < words.length; i++) {
-    if (words[i].toLowerCase() == 'left')
-      words[i] = 'right';
-    else if (words[i].toLowerCase() == 'right') words[i] = 'left';
-  }
-  stagename = words.join(' ');
-  return stagename;
+extension StringCasingExtension on String {
+  String toCapitalized() =>
+      length > 0 ? '${this[0].toUpperCase()}${substring(1).toLowerCase()}' : '';
+  String toTitleCase() => replaceAll(RegExp(' +'), ' ')
+      .split(' ')
+      .map((str) => str.toCapitalized())
+      .join(' ');
 }
-
-const String FRIEND_ADD = 'add';
-const String FRIEND_REMOVE = 'remove';

@@ -79,10 +79,8 @@ class _MealsPageState extends State<MealsPage> {
   List<Widget> _dayList(DateTime day, Map<DateTime, DayMeal> mealMap) {
     List<Widget> ret = [];
 
-    print('_dayList: ${mealMap.length}');
     for (var i = 0; i < 7; i++) {
       DateTime nday = day.add(Duration(days: i));
-      print('_dayList: $nday: ${mealMap[nday]}');
       ret.add(_dayTile(nday, mealMap[nday] ?? DayMeal('', '', '')));
     }
     return ret;

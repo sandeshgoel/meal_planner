@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
 import 'package:meal_planner/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +17,6 @@ class _EditMealState extends State<EditMeal> {
   late DayMeal _lastSaved;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _lastSaved = widget.dayMeal.copy();
     print('_init called');

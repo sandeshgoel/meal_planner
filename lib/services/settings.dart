@@ -107,6 +107,7 @@ class YogaSettings with ChangeNotifier {
 
   late List<MealPlanRole> _mprs;
   late int _curMpIndex;
+  late bool _superUser;
   late bool _notify;
 
   // cached only, not written to DB
@@ -128,6 +129,7 @@ class YogaSettings with ChangeNotifier {
 
     _mprs = [];
     _curMpIndex = 0;
+    _superUser = false;
     _notify = defNotify;
 
     meals = {};
@@ -172,12 +174,25 @@ class YogaSettings with ChangeNotifier {
 
   // ----------------------------------------------------
 
+  YogaSettings.fromJson(Map<String, dynamic> jval) {
+    _user = UserInfo.fromJson(jval['user'] ?? (_user).toJson());
+    _mprs = (jval['mprs'] ?? (this._mprs.map((e) => e.toJson()).toList()))
+        .map<MealPlanRole>((x) => MealPlanRole.fromJson(x))
+        .toList();
+    _curMpIndex = jval['curMpIndex'] ?? _curMpIndex;
+    _superUser = jval['superUser'] ?? _superUser;
+    _notify = jval['notify'] ?? _notify;
+
+    //notifyListeners();
+  }
+
   void settingsFromJson(Map<String, dynamic> jval) {
     _user = UserInfo.fromJson(jval['user'] ?? (_user).toJson());
     _mprs = (jval['mprs'] ?? (this._mprs.map((e) => e.toJson()).toList()))
         .map<MealPlanRole>((x) => MealPlanRole.fromJson(x))
         .toList();
     _curMpIndex = jval['curMpIndex'] ?? _curMpIndex;
+    _superUser = jval['superUser'] ?? _superUser;
     _notify = jval['notify'] ?? _notify;
 
     notifyListeners();
@@ -188,6 +203,7 @@ class YogaSettings with ChangeNotifier {
       'user': (_user).toJson(),
       'mprs': this._mprs.map((e) => e.toJson()).toList(),
       'curMpIndex': _curMpIndex,
+      'superUser': _superUser,
       'notify': _notify,
     };
   }
@@ -226,6 +242,7 @@ class YogaSettings with ChangeNotifier {
     if (_user.equals(cfg._user) &
         (mpsEquals(cfg._mprs)) &
         (_curMpIndex == cfg._curMpIndex) &
+        (_superUser == cfg._superUser) &
         (_notify == cfg._notify)) {
       return true;
     } else {
@@ -244,6 +261,12 @@ class YogaSettings with ChangeNotifier {
     return this._mprs;
   }
 
+  void updateMpRoleOther(String mpid, MpRole role) {
+    // Delete any existing roles for this mpid
+    _mprs.removeWhere((element) => element.mpid == mpid);
+    // Add mpid with new role
+    _mprs.add(MealPlanRole(mpid, role));
+  }
   // ----------------------------------------------------
 
   Future<MealPlan> getMealPlan(String mpid) async {
@@ -318,6 +341,16 @@ class YogaSettings with ChangeNotifier {
 
   int getCurMpIndex() {
     return _curMpIndex;
+  }
+
+  // ----------------------------------------------------
+
+  void setSuperUser(bool val) {
+    _superUser = val;
+  }
+
+  bool getSuperUser() {
+    return _superUser;
   }
 
   // ----------------------------------------------------

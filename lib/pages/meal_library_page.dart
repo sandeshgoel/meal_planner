@@ -72,7 +72,8 @@ class _MealLibraryState extends State<MealLibrary> {
               ),
             ] +
             settings.meals.keys
-                .map((k) => Container(
+                .map(
+                  (k) => Container(
                     //color: Colors.lightBlue[100],
                     margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
@@ -87,8 +88,16 @@ class _MealLibraryState extends State<MealLibrary> {
                         ),
                         Divider(),
                       ],
-                    )))
-                .toList(),
+                    ),
+                  ),
+                )
+                .toList() +
+            [
+              Container(
+                  child: SizedBox(
+                height: 80,
+              )),
+            ],
       ),
     );
   }
@@ -131,7 +140,7 @@ class _MealLibraryState extends State<MealLibrary> {
     );
 
     String label = name[0].trim();
-    String display = name[1].trim();
+    String display = name[1].trim().toTitleCase();
 
     if (label.isEmpty) {
       showMsg(context, 'Label can\'t be empty, try again!!');
@@ -140,12 +149,14 @@ class _MealLibraryState extends State<MealLibrary> {
     } else if (label.contains(' ')) {
       showMsg(context, 'Label can\'t contain space, try again!!');
     } else if (settings.meals.keys.any((x) => x == label)) {
-      showMsg(context, 'Meal \'$label\' already exists!!');
+      showMsg(context, 'Meal label \'$label\' already exists!!');
+    } else if (settings.meals.values.any((x) => x == display)) {
+      showMsg(context, 'Meal name \'$display\' already exists!!');
     } else {
       Meal m = Meal(label: label, display_name: display);
       settings.meals[label] = display;
       DBService(email: settings.getUser().email).addMeal(m);
-      showMsg(context, 'Added Meal $name');
+      showMsg(context, 'Added Meal $label,$display');
     }
     setState(() {});
   }
