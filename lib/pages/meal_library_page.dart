@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_planner/pages/edit_meal_lib_page.dart';
 import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
 import 'package:meal_planner/services/settings.dart';
@@ -15,18 +16,21 @@ class MealLibrary extends StatefulWidget {
 class _MealLibraryState extends State<MealLibrary> {
   late TextEditingController controller1;
   late TextEditingController controller2;
+  late TextEditingController controller3;
 
   @override
   void initState() {
     super.initState();
     controller1 = TextEditingController();
     controller2 = TextEditingController();
+    controller3 = TextEditingController();
   }
 
   @override
   void dispose() {
     controller1.dispose();
     controller2.dispose();
+    controller3.dispose();
     super.dispose();
   }
 
@@ -79,12 +83,15 @@ class _MealLibraryState extends State<MealLibrary> {
                     padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
                     child: Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(k),
-                            Text('${settings.meals[k]}'),
-                          ],
+                        InkWell(
+                          onTap: () => _editMeal(k),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(k),
+                              Text('${settings.meals[k]}'),
+                            ],
+                          ),
                         ),
                         Divider(),
                       ],
@@ -102,8 +109,21 @@ class _MealLibraryState extends State<MealLibrary> {
     );
   }
 
+  void _editMeal(String label) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (BuildContext context) {
+        return EditMealLib(
+          label: label,
+        );
+      }),
+    ).then((value) {
+      setState(() {});
+    });
+  }
+
   void _addMeal() async {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    MealCategory category = MealCategory.snack;
 
     List<String> name = await showDialog(
       context: context,
@@ -122,6 +142,22 @@ class _MealLibraryState extends State<MealLibrary> {
             TextField(
               controller: controller2,
               decoration: InputDecoration(hintText: 'Enter display name'),
+            ),
+            DropdownButton<MealCategory>(
+              value: category,
+              items: MealCategory.values
+                  .map((k) => DropdownMenuItem<MealCategory>(
+                      value: k,
+                      child: Text(
+                        displayCategory(k),
+                        style: TextStyle(fontSize: 12),
+                      )))
+                  .toList(),
+              onChanged: (MealCategory? newValue) {
+                setState(() {
+                  category = newValue!;
+                });
+              },
             ),
           ],
         ),
@@ -153,9 +189,11 @@ class _MealLibraryState extends State<MealLibrary> {
     } else if (settings.meals.values.any((x) => x == display)) {
       showMsg(context, 'Meal name \'$display\' already exists!!');
     } else {
-      Meal m = Meal(label: label, display_name: display);
+      Meal m = Meal(label: label, display_name: display, category: category);
       settings.meals[label] = display;
-      DBService(email: settings.getUser().email).addMeal(m);
+      settings.mealsCategory[label] = category;
+      await DBService(email: settings.getUser().email)
+          .addMeal(m.toJson(), label);
       showMsg(context, 'Added Meal $label,$display');
     }
     setState(() {});

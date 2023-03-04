@@ -166,6 +166,13 @@ class _EditMealState extends State<EditMeal> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Cancel')),
+                  ElevatedButton(
                       onPressed: (_lastSaved.equalTo(widget.dayMeal))
                           ? null
                           : () async {
@@ -176,13 +183,6 @@ class _EditMealState extends State<EditMeal> {
                               Navigator.pop(context);
                             },
                       child: Text('Save')),
-                  ElevatedButton(
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('Cancel')),
                 ],
               ),
             ),

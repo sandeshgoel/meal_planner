@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:meal_planner/services/meal_plan.dart';
 import 'package:meal_planner/services/settings.dart';
 
 class DBService {
@@ -115,22 +114,16 @@ class DBService {
 // -------------------------------------------------
 
   final CollectionReference mealsCollection =
-      FirebaseFirestore.instance.collection('meals');
+      FirebaseFirestore.instance.collection('meallib');
 
-  Future addMeal(Meal m) async {
-    print('Writing to DB meals ${m.label}, ${m.display_name} ...');
-    await mealsCollection.doc(m.label).set({'name': m.display_name});
+  Future addMeal(Map<String, dynamic> m, String label) async {
+    print('Writing to DB meallib $m ...');
+    await mealsCollection.doc(label).set(m, SetOptions(merge: true));
   }
 
-  Future<List<Meal>> getMeals() async {
+  Future<QuerySnapshot> getMeals() async {
     print('Getting from meals library ...');
-    QuerySnapshot queryRef = await mealsCollection.get();
-
-    return queryRef.docs
-        .map((doc) => Meal(
-            label: doc.id,
-            display_name: (doc.data() as Map<String, dynamic>)['name']))
-        .toList();
+    return await mealsCollection.get();
   }
 
 // -------------------------------------------------

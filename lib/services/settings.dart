@@ -113,6 +113,7 @@ class YogaSettings with ChangeNotifier {
 
   // cached only, not written to DB
   late Map<String, String> meals;
+  late Map<String, MealCategory> mealsCategory;
   late List<MealPlan> mealPlans;
   late Map<DateTime, DayMeal> mealPlanData;
   late bool mpCachingNeeded;
@@ -136,6 +137,7 @@ class YogaSettings with ChangeNotifier {
     _notify = defNotify;
 
     meals = {};
+    mealsCategory = {};
     mealPlans = [];
     mealPlanData = {};
     mpCachingNeeded = true;
@@ -343,6 +345,21 @@ class YogaSettings with ChangeNotifier {
 
     await DBService(email: _user.email).addMealPlanData(mpd);
     mealPlanData[date] = dayMeal;
+  }
+
+  // ----------------------------------------------------
+
+  Future getAllMeals() async {
+    QuerySnapshot queryRef = await DBService(email: _user.email).getMeals();
+
+    List<Meal> listMeals =
+        queryRef.docs.map((doc) => Meal.fromJson(doc.data())).toList();
+
+    for (Meal meal in listMeals) {
+      meals[meal.label] = meal.display_name;
+      mealsCategory[meal.label] = meal.category;
+    }
+    meals[''] = '-';
   }
 
   // ----------------------------------------------------

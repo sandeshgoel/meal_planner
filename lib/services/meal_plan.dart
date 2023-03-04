@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class MealPlan {
   late String name;
   late String creator;
@@ -84,13 +86,52 @@ class MealPlanData {
   }
 }
 
+enum MealCategory { dal, veg, snack }
+
+String displayCategory(MealCategory category) {
+  switch (category) {
+    case MealCategory.dal:
+      return 'Dal';
+    case MealCategory.veg:
+      return 'Veg/Curry';
+    case MealCategory.snack:
+      return 'Snack';
+    default:
+      return 'Not found';
+  }
+}
+
+// reverse of describe enum
+MealCategory strToCategory(String c) {
+  MealCategory res = MealCategory.values.firstWhere((e) => describeEnum(e) == c,
+      orElse: () => MealCategory.snack);
+  return res;
+}
+
 class Meal {
   late String label;
   late String display_name;
+  late MealCategory category;
 
-  Meal({label = '', display_name = ''}) {
+  Meal({required label, required display_name, required category}) {
     this.label = label;
     this.display_name = display_name;
+    this.category = category;
+  }
+
+  Meal.fromJson(jval) {
+    this.label = jval['label'];
+    this.display_name = jval['name'];
+    this.category =
+        strToCategory(jval['category'] ?? describeEnum(MealCategory.snack));
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'label': this.label,
+      'name': this.display_name,
+      'category': describeEnum(this.category),
+    };
   }
 }
 

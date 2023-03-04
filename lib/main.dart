@@ -149,11 +149,7 @@ class _WrapperState extends State<Wrapper> {
     }
 
     // cache all meals
-    List<Meal> meals = await DBService(email: user.email).getMeals();
-    for (Meal meal in meals) {
-      settings.meals[meal.label] = meal.display_name;
-    }
-    settings.meals[''] = '-';
+    await settings.getAllMeals();
 
     // cache meal plan data for current meal plan
     await settings.getCurMealPlanData();
