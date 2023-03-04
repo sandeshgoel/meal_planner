@@ -74,8 +74,8 @@ class _ManagePageState extends State<ManagePage> {
     if (settings.mealPlans.any((x) => x.name == name)) {
       showMsg(context, 'Meal Plan \'$name\' already exists!!');
     } else {
-      settings.addMealPlan(name);
-      showMsg(context, 'Added Meal Plan');
+      await settings.addMealPlan(name);
+      showMsg(context, 'Added \'$name\'');
     }
     setState(() {});
   }

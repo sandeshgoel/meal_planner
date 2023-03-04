@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_planner/services/meal_plan.dart';
@@ -60,15 +59,9 @@ class DBService {
   final CollectionReference mpCollection =
       FirebaseFirestore.instance.collection('mealplans');
 
-  Future<String> addMealPlan(Map<String, dynamic> mp) async {
-    String docId = '';
-
-    print('Writing to DB mealplan ...');
-    await mpCollection.add(mp).then((documentSnapshot) {
-      docId = documentSnapshot.id;
-      print("Added Data with ID: ${docId}");
-    });
-    return docId;
+  Future addMealPlan(String mpid, Map<String, dynamic> mp) async {
+    await mpCollection.doc(mpid).set(mp);
+    print('Written to DB mealplan $mpid...');
   }
 
   Future updateMealPlan(Map<String, dynamic> mp, String mpid) async {

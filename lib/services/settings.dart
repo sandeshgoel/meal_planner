@@ -108,12 +108,14 @@ class YogaSettings with ChangeNotifier {
   late List<MealPlanRole> _mprs;
   late int _curMpIndex;
   late bool _superUser;
+  late int _mpIndex;
   late bool _notify;
 
   // cached only, not written to DB
   late Map<String, String> meals;
   late List<MealPlan> mealPlans;
   late Map<DateTime, DayMeal> mealPlanData;
+  late bool mpCachingNeeded;
   late bool loadComplete;
 
   YogaSettings() {
@@ -130,11 +132,13 @@ class YogaSettings with ChangeNotifier {
     _mprs = [];
     _curMpIndex = 0;
     _superUser = false;
+    _mpIndex = 0;
     _notify = defNotify;
 
     meals = {};
     mealPlans = [];
     mealPlanData = {};
+    mpCachingNeeded = true;
     loadComplete = false;
   }
 
@@ -181,6 +185,7 @@ class YogaSettings with ChangeNotifier {
         .toList();
     _curMpIndex = jval['curMpIndex'] ?? _curMpIndex;
     _superUser = jval['superUser'] ?? _superUser;
+    _mpIndex = jval['mpIndex'] ?? _mpIndex;
     _notify = jval['notify'] ?? _notify;
 
     //notifyListeners();
@@ -193,6 +198,7 @@ class YogaSettings with ChangeNotifier {
         .toList();
     _curMpIndex = jval['curMpIndex'] ?? _curMpIndex;
     _superUser = jval['superUser'] ?? _superUser;
+    _mpIndex = jval['mpIndex'] ?? _mpIndex;
     _notify = jval['notify'] ?? _notify;
 
     notifyListeners();
@@ -204,6 +210,7 @@ class YogaSettings with ChangeNotifier {
       'mprs': this._mprs.map((e) => e.toJson()).toList(),
       'curMpIndex': _curMpIndex,
       'superUser': _superUser,
+      'mpIndex': _mpIndex,
       'notify': _notify,
     };
   }
@@ -283,7 +290,10 @@ class YogaSettings with ChangeNotifier {
   Future addMealPlan(String name) async {
     String email = _user.email;
     MealPlan mp = MealPlan(name: name, creator: email, admins: [email]);
-    String mpId = await DBService(email: email).addMealPlan(mp.toJson());
+    String mpId = email + '_' + _mpIndex.toString();
+    await DBService(email: email).addMealPlan(mpId, mp.toJson());
+    _mpIndex += 1; // save settings will be called in addMpRole
+
     MealPlanRole mprole = MealPlanRole(mpId, MpRole.admin);
     addMpRole(mprole, mp);
   }
@@ -316,6 +326,8 @@ class YogaSettings with ChangeNotifier {
       mealPlanData[mpd.date] = DayMeal(mpd.breakfast, mpd.lunch, mpd.dinner);
       print('${mpd.date}:${mealPlanData[mpd.date]}');
     }
+
+    mpCachingNeeded = false;
     print('mealPlanData cached, length=${mealPlanData.length}');
   }
 
@@ -336,6 +348,7 @@ class YogaSettings with ChangeNotifier {
   // ----------------------------------------------------
 
   void setCurMpIndex(int val) {
+    if (val != _curMpIndex) mpCachingNeeded = true;
     _curMpIndex = val;
   }
 

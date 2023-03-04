@@ -168,8 +168,8 @@ class _EditMealState extends State<EditMeal> {
                   ElevatedButton(
                       onPressed: (_lastSaved.equalTo(widget.dayMeal))
                           ? null
-                          : () {
-                              settings.saveMealPlanData(
+                          : () async {
+                              await settings.saveMealPlanData(
                                   widget.date, widget.dayMeal);
                               _lastSaved = widget.dayMeal.copy();
                               setState(() {});

@@ -24,54 +24,94 @@ class _MealsPageState extends State<MealsPage> {
     today = day;
   }
 
+  Future<bool> _cacheMPD() async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    if (settings.mpCachingNeeded) {
+      await settings.getCurMealPlanData();
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<YogaSettings>(
-      builder: (context, settings, _) {
-        String formatted = DateFormat('MMM dd, y').format(day);
-        List<Widget> dayList = _dayList(day, settings.mealPlanData);
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                color: Colors.lightBlue,
-                margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FutureBuilder<bool>(
+      future: _cacheMPD(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        Widget ret = Container();
+
+        if (snapshot.hasData) {
+          ret = Consumer<YogaSettings>(
+            builder: (context, settings, _) {
+              String formatted = DateFormat('MMM dd, y').format(day);
+              List<Widget> dayList = _dayList(day, settings.mealPlanData);
+              return SingleChildScrollView(
+                child: Column(
                   children: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          day = day.subtract(Duration(days: 7));
-                        });
-                      },
-                      icon: const Icon(Icons.arrow_back),
+                    Container(
+                      color: Colors.lightBlue,
+                      margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                day = day.subtract(Duration(days: 7));
+                              });
+                            },
+                            icon: const Icon(Icons.arrow_back),
+                          ),
+                          Text(
+                            'Week of $formatted',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                day = day.add(Duration(days: 7));
+                              });
+                            },
+                            icon: const Icon(Icons.arrow_forward),
+                          ),
+                        ],
+                      ),
                     ),
-                    Text(
-                      'Week of $formatted',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                    Column(
+                      children: dayList,
                     ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          day = day.add(Duration(days: 7));
-                        });
-                      },
-                      icon: const Icon(Icons.arrow_forward),
-                    ),
+                    const SizedBox(
+                      height: 20,
+                    )
                   ],
                 ),
-              ),
-              Column(
-                children: dayList,
-              ),
-              const SizedBox(
-                height: 20,
-              )
-            ],
-          ),
-        );
+              );
+            },
+          );
+        } else {
+          ret = Scaffold(
+            appBar: AppBar(title: Text('Loading ...')),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 60),
+                Container(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.center,
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Text('Loading meal data ...'),
+                  alignment: Alignment.center,
+                )
+              ],
+            ),
+          );
+        }
+        return ret;
       },
     );
   }

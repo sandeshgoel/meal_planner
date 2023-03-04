@@ -9,7 +9,7 @@ import 'package:meal_planner/pages/meals_page.dart';
 import 'package:meal_planner/pages/stats_page.dart';
 import 'package:meal_planner/services/auth.dart';
 import 'package:meal_planner/services/meal_plan.dart';
-import 'package:meal_planner/shared/constants.dart';
+
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:provider/provider.dart';
