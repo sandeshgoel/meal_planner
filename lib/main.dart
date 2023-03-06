@@ -7,8 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:meal_planner/pages/authenticate_page.dart';
 import 'package:meal_planner/pages/email_verify_page.dart';
 import 'package:meal_planner/services/auth.dart';
-import 'package:meal_planner/services/database.dart';
-import 'package:meal_planner/services/meal_plan.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'firebase_options.dart';
 
@@ -126,12 +124,7 @@ class _WrapperState extends State<Wrapper> {
         '_rightAfterSignIn: Signed in user ${settings.getUser()}, reading DB now ..');
 
     // read rest of the settings from DB
-    var doc = await DBService(email: user.email).getUserData();
-    var cfg = doc.data();
-    if (cfg != null)
-      settings.settingsFromJson(cfg);
-    else
-      print('_rightAfterSignIn: DB returned null record for ${user.uid}!!');
+    await settings.loadSettingsFromDB();
 
     if (user.email == 'sandesh@gmail.com') settings.setSuperUser(true);
 

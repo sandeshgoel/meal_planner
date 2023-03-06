@@ -266,7 +266,7 @@ class _EditMealPlanState extends State<EditMealPlan> {
         DBService(email: settings.getUser().email).updateMealPlan(
             settings.mealPlans[widget.index].toJson(), mpr.mpid);
 
-        showMsg(context, 'Added user \'$emailToAdd\' as admin');
+        showToast(context, 'Added user \'$emailToAdd\' as admin');
 
         // Add this meal plan to the new admin too
         otherCfg.updateMpRoleOther(mpr.mpid, MpRole.admin);

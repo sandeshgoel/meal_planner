@@ -9,6 +9,7 @@ import 'package:meal_planner/pages/meals_page.dart';
 import 'package:meal_planner/pages/stats_page.dart';
 import 'package:meal_planner/services/auth.dart';
 import 'package:meal_planner/services/meal_plan.dart';
+import 'package:meal_planner/shared/constants.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -26,11 +27,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final AuthService _auth = AuthService();
-  final _skey0 = GlobalKey();
   final _skey1 = GlobalKey();
-  final _skey2 = GlobalKey();
-  final _skey3 = GlobalKey();
-  final _skey4 = GlobalKey();
 
   Future<bool> _shared() async {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
@@ -48,7 +45,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
         if (snapshot.hasData) {
           ret = Consumer<YogaSettings>(builder: (context, settings, _) {
-            String mpName = settings.mealPlans[settings.getCurMpIndex()].name;
+            MealPlan mp = settings.mealPlans[settings.getCurMpIndex()];
+            int shared =
+                mp.admins.length + mp.members.length + mp.viewers.length - 1;
 
             return ShowCaseWidget(
               builder: Builder(builder: (context) {
@@ -57,13 +56,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     actions: [
                       Showcase(
                         key: _skey1,
-                        description: 'Click here for the monthly view',
+                        description: 'Click here to refresh user data',
                         overlayPadding: const EdgeInsets.fromLTRB(-5, 0, 5, 0),
                         contentPadding: const EdgeInsets.all(20),
                         shapeBorder: const CircleBorder(),
                         child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.calendar_month),
+                          onPressed: () async {
+                            await settings.refreshCache();
+                            showToast(context, 'Refresh completed');
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.refresh),
                         ),
                       ),
                       IconButton(
@@ -83,13 +86,18 @@ class _MyHomePageState extends State<MyHomePage> {
                         icon: const Icon(Icons.help_rounded),
                         onPressed: () {
                           setState(() {
-                            ShowCaseWidget.of(context).startShowCase(
-                                [_skey0, _skey1, _skey2, _skey3, _skey4]);
+                            ShowCaseWidget.of(context).startShowCase([_skey1]);
                           });
                         },
                       ),
                     ],
-                    title: Text(mpName, style: const TextStyle(fontSize: 18)),
+                    title: Row(
+                      children: [
+                        Icon((shared > 0) ? Icons.group : Icons.group_off),
+                        SizedBox(width: 10),
+                        Text(mp.name, style: const TextStyle(fontSize: 18)),
+                      ],
+                    ),
                   ),
                   drawer: _drawer(context, settings),
                   body: Stack(
@@ -197,6 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }),
     ).then((value) {
       setState(() {});
+      Navigator.pop(context);
     });
   }
 
@@ -207,6 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }),
     ).then((value) {
       setState(() {});
+      Navigator.pop(context);
     });
   }
 

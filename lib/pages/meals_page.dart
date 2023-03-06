@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:meal_planner/pages/edit_meal_page.dart';
 import 'package:meal_planner/services/meal_plan.dart';
 import 'package:meal_planner/services/settings.dart';
+import 'package:meal_planner/shared/constants.dart';
 import 'package:provider/provider.dart';
 
 class MealsPage extends StatefulWidget {
@@ -48,16 +49,19 @@ class _MealsPageState extends State<MealsPage> {
                 child: Column(
                   children: [
                     Container(
-                      color: Colors.lightBlue,
+                      color: Colors.lightBlue[100],
                       margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           IconButton(
                             onPressed: () {
-                              setState(() {
+                              if (today.difference(day).inDays < 7 * numWeeks)
                                 day = day.subtract(Duration(days: 7));
-                              });
+                              else
+                                showToast(context,
+                                    'Cannot go beyond $numWeeks weeks');
+                              setState(() {});
                             },
                             icon: const Icon(Icons.arrow_back),
                           ),
@@ -68,9 +72,12 @@ class _MealsPageState extends State<MealsPage> {
                           ),
                           IconButton(
                             onPressed: () {
-                              setState(() {
+                              if (day.difference(today).inDays < 7 * numWeeks)
                                 day = day.add(Duration(days: 7));
-                              });
+                              else
+                                showToast(context,
+                                    'Cannot go beyond $numWeeks weeks');
+                              setState(() {});
                             },
                             icon: const Icon(Icons.arrow_forward),
                           ),
@@ -145,9 +152,21 @@ class _MealsPageState extends State<MealsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '$formatted ${(date == today) ? '       TODAY' : ''}',
+                    formatted,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  (date == today)
+                      ? Container(
+                          padding: EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                              color: Colors.red[100],
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Text(
+                            '  TODAY  ',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      : Container(),
                   IconButton(
                       onPressed: () {
                         _editMeal(date, dayMeal);

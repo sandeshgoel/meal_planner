@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
+import 'package:meal_planner/shared/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInfo {
@@ -239,6 +240,15 @@ class YogaSettings with ChangeNotifier {
     }
   }
 
+  Future loadSettingsFromDB() async {
+    var doc = await DBService(email: _user.email).getUserData();
+    var cfg = doc.data();
+    if (cfg != null)
+      settingsFromJson(cfg);
+    else
+      print('loadSettingsFromDB: DB returned null record for ${_user.uid}!!');
+  }
+
   bool mpsEquals(List<MealPlanRole> mps) {
     if (this._mprs.length != mps.length) return false;
     for (int i = 0; i < mps.length; i++) {
@@ -315,15 +325,17 @@ class YogaSettings with ChangeNotifier {
 
   Future getCurMealPlanData() async {
     DateTime now = DateTime.now();
-    DateTime startDate =
-        DateTime(now.year, now.month, now.day).subtract(Duration(days: 28));
+    DateTime startDate = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: 7 * numWeeks));
 
     QuerySnapshot queryRef = await DBService(email: _user.email)
-        .getMealPlanDataDuration(_mprs[_curMpIndex].mpid, startDate, 7 * 9);
+        .getMealPlanDataDuration(
+            _mprs[_curMpIndex].mpid, startDate, 7 * (2 * numWeeks + 1));
 
     List<MealPlanData> mpdList =
         queryRef.docs.map((doc) => MealPlanData.fromJson(doc.data())).toList();
 
+    mealPlanData = {};
     for (MealPlanData mpd in mpdList) {
       mealPlanData[mpd.date] = DayMeal(mpd.breakfast, mpd.lunch, mpd.dinner);
       print('${mpd.date}:${mealPlanData[mpd.date]}');
@@ -362,11 +374,29 @@ class YogaSettings with ChangeNotifier {
     meals[''] = '-';
   }
 
+  List<String> listMeals(MealCategory category) {
+    List<String> res = [];
+
+    for (String label in meals.keys) {
+      if (mealsCategory[label] == category) res.add(label);
+    }
+    return res;
+  }
+
+  Future refreshCache() async {
+    await loadSettingsFromDB();
+    await getAllMeals();
+    await getAllMealPlans();
+    await getCurMealPlanData();
+  }
   // ----------------------------------------------------
 
   void setCurMpIndex(int val) {
-    if (val != _curMpIndex) mpCachingNeeded = true;
-    _curMpIndex = val;
+    if (val != _curMpIndex) {
+      mpCachingNeeded = true;
+      _curMpIndex = val;
+      saveSettings();
+    }
   }
 
   int getCurMpIndex() {

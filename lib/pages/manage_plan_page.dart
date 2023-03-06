@@ -75,7 +75,7 @@ class _ManagePageState extends State<ManagePage> {
       showMsg(context, 'Meal Plan \'$name\' already exists!!');
     } else {
       await settings.addMealPlan(name);
-      showMsg(context, 'Added \'$name\'');
+      showToast(context, 'Added \'$name\'');
     }
     setState(() {});
   }
@@ -93,6 +93,8 @@ class _ManagePageState extends State<ManagePage> {
 
   Widget _mealPlanTile(
       YogaSettings settings, MealPlanRole mpr, MealPlan r, int index) {
+    int shared = r.admins.length + r.members.length + r.viewers.length - 1;
+
     return Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: Row(
@@ -103,50 +105,72 @@ class _ManagePageState extends State<ManagePage> {
               padding: EdgeInsets.symmetric(vertical: 10),
               decoration: boxDeco,
               child: Center(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      //Text(annotation, style: starStyle),
-                      Text(
-                        r.name.length > 22
-                            ? '${r.name.substring(0, 20)}...'
-                            : '${r.name}',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Role:${describeEnum(mpr.mpRole)}, Creator:${r.creator}',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed:
-                            (settings.getCurMpIndex() == index) ? null : () {},
-                        child: Text('Select'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _editMealPlan(context, index);
-                        },
-                        child: Text('Manage'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Text('Delete'),
-                      ),
-                    ],
-                  ),
-                ],
-              )),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Name of plan
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        //Text(annotation, style: starStyle),
+                        Text(
+                          '${r.name}   ',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        (settings.getCurMpIndex() == index)
+                            ? Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                              )
+                            : Container(),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+
+                    // Role and creator
+
+                    Text(
+                      'Role:${describeEnum(mpr.mpRole)}, Creator:${r.creator}',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(height: 10),
+
+                    // Sharing
+
+                    Text(
+                      (shared > 0)
+                          ? 'Shared with $shared user' +
+                              ((shared > 1) ? 's' : '')
+                          : 'Not Shared',
+                      style: TextStyle(fontSize: 14),
+                    ),
+
+                    SizedBox(height: 20),
+
+                    // Actions
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: null,
+                          child: Text('Delete'),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            _editMealPlan(context, index);
+                          },
+                          child: Text('Manage'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],

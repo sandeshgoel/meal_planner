@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+var numWeeks = 4;
+
 var boxDeco = BoxDecoration(
   borderRadius: BorderRadius.all(Radius.circular(20)),
   color: Colors.white.withOpacity(0.6),
@@ -47,6 +49,12 @@ void showMsg(context, String msg) {
       title: Text('Message'),
     ),
   );
+}
+
+void showToast(context, String msg) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(msg),
+  ));
 }
 
 String obfuscate(String s) {

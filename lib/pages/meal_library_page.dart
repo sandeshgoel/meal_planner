@@ -55,56 +55,92 @@ class _MealLibraryState extends State<MealLibrary> {
   Widget _listMeals(YogaSettings settings) {
     return SingleChildScrollView(
       child: Column(
-        children: [
-              Container(
-                color: Colors.lightBlue,
-                margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                padding: const EdgeInsets.all(5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Label',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Display Name',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+          children: <Widget>[
+                Container(
+                  color: Colors.lightBlue,
+                  margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Label',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Display Name',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ] +
-            settings.meals.keys
-                .map(
-                  (k) => Container(
-                    //color: Colors.lightBlue[100],
-                    margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
-                    child: Column(
-                      children: [
-                        InkWell(
-                          onTap: () => _editMeal(k),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(k),
-                              Text('${settings.meals[k]}'),
-                            ],
-                          ),
+              ] +
+              MealCategory.values
+                  .map((e) => _listMealsCategory(settings, e))
+                  .toList() +
+              [
+                Container(
+                  margin: EdgeInsets.all(5),
+                  child: Card(
+                    child: Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(10),
+                      child: Center(
+                        child: Text(
+                          'Touch the row to edit display name for that meal',
+                          style: TextStyle(fontStyle: FontStyle.italic),
                         ),
-                        Divider(),
-                      ],
+                      ),
                     ),
                   ),
-                )
-                .toList() +
-            [
-              Container(
-                  child: SizedBox(
-                height: 80,
-              )),
-            ],
+                ),
+                SizedBox(height: 60),
+              ]),
+    );
+  }
+
+  Widget _listMealsCategory(YogaSettings settings, MealCategory category) {
+    return Container(
+      margin: EdgeInsets.all(5),
+      child: Card(
+        child: Column(
+            children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 5),
+                    child: Text(
+                      'Category: ${displayCategory(category)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ] +
+                settings.meals.keys
+                    .map(
+                      (k) => (settings.mealsCategory[k] == category)
+                          ? Container(
+                              //color: Colors.lightBlue[100],
+                              margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 3, horizontal: 5),
+                              child: Column(
+                                children: [
+                                  InkWell(
+                                    onTap: () => _editMeal(k),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(k),
+                                        Text('${settings.meals[k]}'),
+                                      ],
+                                    ),
+                                  ),
+                                  Divider(),
+                                ],
+                              ),
+                            )
+                          : Container(),
+                    )
+                    .toList()),
       ),
     );
   }
@@ -194,7 +230,7 @@ class _MealLibraryState extends State<MealLibrary> {
       settings.mealsCategory[label] = category;
       await DBService(email: settings.getUser().email)
           .addMeal(m.toJson(), label);
-      showMsg(context, 'Added Meal $label,$display');
+      showToast(context, 'Added Meal $label,$display');
     }
     setState(() {});
   }
