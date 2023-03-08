@@ -96,6 +96,131 @@ class _EditSettingsPageState extends State<EditSettingsPage> {
                   ),
                 ),
 
+                // Meals to show
+
+                SizedBox(height: 10),
+                Divider(),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Text(
+                      'Select which meals to show:',
+                      style: settingsTextStyle,
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // pre-breakfast snack
+
+                Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Text('Pre-Breakfast Snack', style: settingsTextStyle),
+                    Expanded(child: Container()),
+                    Switch(
+                      value: settings.getBsnack(),
+                      onChanged: (val) {
+                        setState(() {
+                          settings.setBsnack(val);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                // breakfast side
+
+                Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Text('Breakfast Side', style: settingsTextStyle),
+                    Expanded(child: Container()),
+                    Switch(
+                      value: settings.getBside(),
+                      onChanged: (val) {
+                        setState(() {
+                          settings.setBside(val);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                // pre-lunch snack
+
+                Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Text('Pre-Lunch Snack', style: settingsTextStyle),
+                    Expanded(child: Container()),
+                    Switch(
+                      value: settings.getLsnack(),
+                      onChanged: (val) {
+                        setState(() {
+                          settings.setLsnack(val);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                // lunch side
+
+                Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Text('Lunch Side', style: settingsTextStyle),
+                    Expanded(child: Container()),
+                    Switch(
+                      value: settings.getLside(),
+                      onChanged: (val) {
+                        setState(() {
+                          settings.setLside(val);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                // pre-dinner snack
+
+                Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Text('Pre-Dinner Snack', style: settingsTextStyle),
+                    Expanded(child: Container()),
+                    Switch(
+                      value: settings.getDsnack(),
+                      onChanged: (val) {
+                        setState(() {
+                          settings.setDsnack(val);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                // dinner side
+
+                Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Text('Dinner Side', style: settingsTextStyle),
+                    Expanded(child: Container()),
+                    Switch(
+                      value: settings.getDside(),
+                      onChanged: (val) {
+                        setState(() {
+                          settings.setDside(val);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                Divider(),
+
                 // Notify
 
                 kIsWeb

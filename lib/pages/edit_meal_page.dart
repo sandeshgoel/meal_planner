@@ -55,250 +55,17 @@ class _EditMealState extends State<EditMeal> {
             ),
 
             // breakfast
-
-            Card(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Breakfast:',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        Text(widget.dayMeal.breakfast),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Select:'),
-                        PopupMenuButton<String>(
-                          icon: Icon(Icons.arrow_drop_down),
-                          tooltip: 'Categories',
-                          onSelected: (value) {
-                            //Do something with selected parent value
-                            print('$value parent selected');
-                          },
-                          itemBuilder: (BuildContext context) {
-                            return <PopupMenuEntry<String>>[
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.dal),
-                                items: settings.listMeals(MealCategory.dal),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.breakfast = value;
-                                  });
-                                },
-                              ),
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.snack),
-                                items: settings.listMeals(MealCategory.snack),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.breakfast = value;
-                                  });
-                                },
-                              ),
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.veg),
-                                items: settings.listMeals(MealCategory.veg),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.breakfast = value;
-                                  });
-                                },
-                              ),
-                            ];
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                ],
-              ),
-            ),
-
-            // lunch
-
-            Card(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Lunch:',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        Text(widget.dayMeal.lunch),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Select:'),
-                        PopupMenuButton<String>(
-                          icon: Icon(Icons.arrow_drop_down),
-                          tooltip: 'Categories',
-                          onSelected: (value) {
-                            //Do something with selected parent value
-                            print('$value parent selected');
-                          },
-                          itemBuilder: (BuildContext context) {
-                            return <PopupMenuEntry<String>>[
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.dal),
-                                items: settings.listMeals(MealCategory.dal),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.lunch = value;
-                                  });
-                                },
-                              ),
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.snack),
-                                items: settings.listMeals(MealCategory.snack),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.lunch = value;
-                                  });
-                                },
-                              ),
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.veg),
-                                items: settings.listMeals(MealCategory.veg),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.lunch = value;
-                                  });
-                                },
-                              ),
-                            ];
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                ],
-              ),
-            ),
-
-            // dinner
-
-            Card(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Dinner:',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        Text(widget.dayMeal.dinner),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Select:'),
-                        PopupMenuButton<String>(
-                          icon: Icon(Icons.arrow_drop_down),
-                          tooltip: 'Categories',
-                          onSelected: (value) {
-                            //Do something with selected parent value
-                            print('$value parent selected');
-                          },
-                          itemBuilder: (BuildContext context) {
-                            return <PopupMenuEntry<String>>[
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.dal),
-                                items: settings.listMeals(MealCategory.dal),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.dinner = value;
-                                  });
-                                },
-                              ),
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.snack),
-                                items: settings.listMeals(MealCategory.snack),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.dinner = value;
-                                  });
-                                },
-                              ),
-                              PopupSubMenuItem<String>(
-                                title: displayCategory(MealCategory.veg),
-                                items: settings.listMeals(MealCategory.veg),
-                                display_function: (val) => settings.meals[val]!,
-                                onSelected: (value) {
-                                  //Do something with selected child value
-                                  print('$value selected');
-                                  setState(() {
-                                    widget.dayMeal.dinner = value;
-                                  });
-                                },
-                              ),
-                            ];
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                ],
-              ),
-            ),
+            (settings.getBsnack() ? _editMealTile(BSNACK) : Container()),
+            _editMealTile(BREAKFAST),
+            (settings.getBside() ? _editMealTile(BSIDE) : Container()),
+            Divider(),
+            (settings.getLsnack() ? _editMealTile(LSNACK) : Container()),
+            _editMealTile(LUNCH),
+            (settings.getLside() ? _editMealTile(LSIDE) : Container()),
+            Divider(),
+            (settings.getDsnack() ? _editMealTile(DSNACK) : Container()),
+            _editMealTile(DINNER),
+            (settings.getDside() ? _editMealTile(DSIDE) : Container()),
 
             // Save
 
@@ -321,6 +88,7 @@ class _EditMealState extends State<EditMeal> {
                               await settings.saveMealPlanData(
                                   widget.date, widget.dayMeal);
                               _lastSaved = widget.dayMeal.copy();
+                              print('Save pressed');
                               setState(() {});
                               Navigator.pop(context);
                             },
@@ -334,39 +102,142 @@ class _EditMealState extends State<EditMeal> {
     );
   }
 
-/*
-  onTap: () async {
-                String name = await showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text(
-                      'Meal name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    content: TextField(
-                      controller: controller,
-                      autofocus: true,
-                      decoration: InputDecoration(
-                          hintText: 'Enter the name of meal ...'),
-                    ),
-                    actions: [
-                      TextButton(
-                          onPressed: () =>
-                              Navigator.of(context).pop(controller.text),
-                          child: Text('Submit'))
-                    ],
-                  ),
-                );
-                dayMeal.breakfast = name;
-                DBService(email: settings.getUser().email).addMealPlanData(
-                    MealPlanData(
-                            date: date,
-                            mpid: mpid,
-                            breakfast: dayMeal.breakfast,
-                            lunch: dayMeal.lunch,
-                            dinner: dayMeal.dinner)
-                        .toJson());
-                setState(() {});
-              },
-              */
+  String _displayName(String label) {
+    switch (label) {
+      case BREAKFAST:
+        return 'Breakfast';
+      case LUNCH:
+        return 'Lunch';
+      case DINNER:
+        return 'Dinner';
+      case BSNACK:
+        return 'Snack';
+      case BSIDE:
+        return 'Breakfast Side';
+      case LSNACK:
+        return 'Snack';
+      case LSIDE:
+        return 'Lunch Side';
+      case DSNACK:
+        return 'Snack';
+      case DSIDE:
+        return 'Dinner Side';
+      default:
+        return '';
+    }
+  }
+
+  String _displayMeal(String label) {
+    switch (label) {
+      case BREAKFAST:
+        return widget.dayMeal.breakfast;
+      case LUNCH:
+        return widget.dayMeal.lunch;
+      case DINNER:
+        return widget.dayMeal.dinner;
+      default:
+        return widget.dayMeal.other[label] ?? '';
+    }
+  }
+
+  void _updateMeal(String label, String value) {
+    switch (label) {
+      case BREAKFAST:
+        widget.dayMeal.breakfast = value;
+        break;
+      case LUNCH:
+        widget.dayMeal.lunch = value;
+        break;
+      case DINNER:
+        widget.dayMeal.dinner = value;
+        break;
+      default:
+        widget.dayMeal.other[label] = value;
+        break;
+    }
+  }
+
+  Widget _editMealTile(String label) {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+
+    return Card(
+      margin: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _displayName(label),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(settings.meals[_displayMeal(label)]!),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Select:'),
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.arrow_drop_down),
+                  tooltip: 'Categories',
+                  onSelected: (value) {
+                    //Do something with selected parent value
+                    print('$value parent selected');
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return <PopupMenuEntry<String>>[
+                      PopupSubMenuItem<String>(
+                        title: displayCategory(MealCategory.dal),
+                        items: settings.listMeals(MealCategory.dal),
+                        display_function: (val) => settings.meals[val]!,
+                        onSelected: (value) {
+                          //Do something with selected child value
+                          print('$value selected');
+                          setState(() {
+                            _updateMeal(label, value);
+                          });
+                        },
+                      ),
+                      PopupSubMenuItem<String>(
+                        title: displayCategory(MealCategory.snack),
+                        items: settings.listMeals(MealCategory.snack),
+                        display_function: (val) => settings.meals[val]!,
+                        onSelected: (value) {
+                          //Do something with selected child value
+                          print('$value selected');
+                          setState(() {
+                            _updateMeal(label, value);
+                          });
+                        },
+                      ),
+                      PopupSubMenuItem<String>(
+                        title: displayCategory(MealCategory.veg),
+                        items: settings.listMeals(MealCategory.veg),
+                        display_function: (val) => settings.meals[val]!,
+                        onSelected: (value) {
+                          //Do something with selected child value
+                          print('$value selected');
+                          setState(() {
+                            _updateMeal(label, value);
+                          });
+                        },
+                      ),
+                    ];
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
 }

@@ -101,6 +101,17 @@ class MealPlanRole {
   }
 }
 
+const BREAKFAST = 'breakfast';
+const LUNCH = 'lunch';
+const DINNER = 'dinner';
+
+const BSNACK = 'bsnack';
+const BSIDE = 'bside';
+const LSNACK = 'lsnack';
+const LSIDE = 'lside';
+const DSNACK = 'dsnack';
+const DSIDE = 'dside';
+
 // ------------------------------------------------------
 
 class YogaSettings with ChangeNotifier {
@@ -111,10 +122,13 @@ class YogaSettings with ChangeNotifier {
   late bool _superUser;
   late int _mpIndex;
   late bool _notify;
+  late bool _bsnack, _bside;
+  late bool _lsnack, _lside;
+  late bool _dsnack, _dside;
 
   // cached only, not written to DB
-  late Map<String, String> meals;
-  late Map<String, MealCategory> mealsCategory;
+  late Map<String, String> meals; // label to name mapping
+  late Map<String, MealCategory> mealsCategory; // label to category
   late List<MealPlan> mealPlans;
   late Map<DateTime, DayMeal> mealPlanData;
   late bool mpCachingNeeded;
@@ -136,6 +150,7 @@ class YogaSettings with ChangeNotifier {
     _superUser = false;
     _mpIndex = 0;
     _notify = defNotify;
+    _bside = _bsnack = _lside = _lsnack = _dside = _dsnack = false;
 
     meals = {};
     mealsCategory = {};
@@ -190,6 +205,12 @@ class YogaSettings with ChangeNotifier {
     _superUser = jval['superUser'] ?? _superUser;
     _mpIndex = jval['mpIndex'] ?? _mpIndex;
     _notify = jval['notify'] ?? _notify;
+    _bsnack = jval[BSNACK] ?? _bsnack;
+    _bside = jval[BSIDE] ?? _bside;
+    _lsnack = jval[LSNACK] ?? _lsnack;
+    _lside = jval[LSIDE] ?? _lside;
+    _dsnack = jval[DSNACK] ?? _dsnack;
+    _dside = jval[DSIDE] ?? _dside;
 
     //notifyListeners();
   }
@@ -203,6 +224,12 @@ class YogaSettings with ChangeNotifier {
     _superUser = jval['superUser'] ?? _superUser;
     _mpIndex = jval['mpIndex'] ?? _mpIndex;
     _notify = jval['notify'] ?? _notify;
+    _bsnack = jval[BSNACK] ?? _bsnack;
+    _bside = jval[BSIDE] ?? _bside;
+    _lsnack = jval[LSNACK] ?? _lsnack;
+    _lside = jval[LSIDE] ?? _lside;
+    _dsnack = jval[DSNACK] ?? _dsnack;
+    _dside = jval[DSIDE] ?? _dside;
 
     notifyListeners();
   }
@@ -215,6 +242,12 @@ class YogaSettings with ChangeNotifier {
       'superUser': _superUser,
       'mpIndex': _mpIndex,
       'notify': _notify,
+      BSNACK: _bsnack,
+      BSIDE: _bside,
+      LSNACK: _lsnack,
+      LSIDE: _lside,
+      DSNACK: _dsnack,
+      DSIDE: _dside,
     };
   }
 
@@ -262,7 +295,13 @@ class YogaSettings with ChangeNotifier {
         (mpsEquals(cfg._mprs)) &
         (_curMpIndex == cfg._curMpIndex) &
         (_superUser == cfg._superUser) &
-        (_notify == cfg._notify)) {
+        (_notify == cfg._notify) &
+        (_bsnack == cfg._bsnack) &
+        (_bside == cfg._bside) &
+        (_lsnack == cfg._lsnack) &
+        (_lside == cfg._lside) &
+        (_dsnack == cfg._dsnack) &
+        (_dside == cfg._dside)) {
       return true;
     } else {
       return false;
@@ -270,14 +309,14 @@ class YogaSettings with ChangeNotifier {
   }
   // ----------------------------------------------------
 
+  List<MealPlanRole> getMprs() {
+    return this._mprs;
+  }
+
   void addMpRole(MealPlanRole mprole, MealPlan mp) {
     this._mprs.add(mprole);
     this.mealPlans.add(mp);
     saveSettings();
-  }
-
-  List<MealPlanRole> getMprs() {
-    return this._mprs;
   }
 
   void updateMpRoleOther(String mpid, MpRole role) {
@@ -286,6 +325,11 @@ class YogaSettings with ChangeNotifier {
     // Add mpid with new role
     _mprs.add(MealPlanRole(mpid, role));
   }
+
+  void delMpRoleOther(String mpid) {
+    _mprs.removeWhere((element) => element.mpid == mpid);
+  }
+
   // ----------------------------------------------------
 
   Future<MealPlan> getMealPlan(String mpid) async {
@@ -331,13 +375,22 @@ class YogaSettings with ChangeNotifier {
     QuerySnapshot queryRef = await DBService(email: _user.email)
         .getMealPlanDataDuration(
             _mprs[_curMpIndex].mpid, startDate, 7 * (2 * numWeeks + 1));
+    print('getCurMealPlanData: retrieved ${queryRef.docs.length} records');
 
-    List<MealPlanData> mpdList =
-        queryRef.docs.map((doc) => MealPlanData.fromJson(doc.data())).toList();
+    List<MealPlanData> mpdList = [];
+
+    for (var doc in queryRef.docs) {
+      print(doc.data());
+      MealPlanData m =
+          MealPlanData.fromJson(doc.data() as Map<String, dynamic>);
+      print(m.toString());
+      mpdList.add(m);
+    }
 
     mealPlanData = {};
     for (MealPlanData mpd in mpdList) {
-      mealPlanData[mpd.date] = DayMeal(mpd.breakfast, mpd.lunch, mpd.dinner);
+      mealPlanData[mpd.date] =
+          DayMeal(mpd.breakfast, mpd.lunch, mpd.dinner, mpd.other);
       print('${mpd.date}:${mealPlanData[mpd.date]}');
     }
 
@@ -351,7 +404,8 @@ class YogaSettings with ChangeNotifier {
             date: date,
             breakfast: dayMeal.breakfast,
             lunch: dayMeal.lunch,
-            dinner: dayMeal.dinner)
+            dinner: dayMeal.dinner,
+            other: dayMeal.other)
         .toJson();
     print('Saving meal plan data: ${mpd.toString()}');
 
@@ -421,6 +475,66 @@ class YogaSettings with ChangeNotifier {
 
   bool getNotify() {
     return _notify;
+  }
+
+  // ----------------------------------------------------
+
+  void setBsnack(bool val) {
+    _bsnack = val;
+  }
+
+  bool getBsnack() {
+    return _bsnack;
+  }
+
+  // ----------------------------------------------------
+
+  void setBside(bool val) {
+    _bside = val;
+  }
+
+  bool getBside() {
+    return _bside;
+  }
+
+  // ----------------------------------------------------
+
+  void setLsnack(bool val) {
+    _lsnack = val;
+  }
+
+  bool getLsnack() {
+    return _lsnack;
+  }
+
+  // ----------------------------------------------------
+
+  void setLside(bool val) {
+    _lside = val;
+  }
+
+  bool getLside() {
+    return _lside;
+  }
+
+  // ----------------------------------------------------
+
+  void setDsnack(bool val) {
+    _dsnack = val;
+  }
+
+  bool getDsnack() {
+    return _dsnack;
+  }
+
+  // ----------------------------------------------------
+
+  void setDside(bool val) {
+    _dside = val;
+  }
+
+  bool getDside() {
+    return _dside;
   }
 
   // ----------------------------------------------------

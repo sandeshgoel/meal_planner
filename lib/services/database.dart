@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:meal_planner/services/settings.dart';
 
 class DBService {
@@ -53,6 +54,7 @@ class DBService {
     await cfgCollection.doc(otherEmail).set(jval);
     print('Updated profile for $otherEmail');
   }
+
 // -------------------------------------------------
 
   final CollectionReference mpCollection =
@@ -79,16 +81,8 @@ class DBService {
       FirebaseFirestore.instance.collection('mealplanData');
 
   Future addMealPlanData(Map<String, dynamic> mpd) async {
-    QuerySnapshot queryRef = await getMealPlanData(mpd['mpid'], mpd['date']);
-    if (queryRef.docs.length == 0) {
-      print('Adding to DB mealplanData ...');
-      await mpDataCollection.add(mpd);
-    } else if (queryRef.docs.length == 1) {
-      print('Updating DB mealplanData ...');
-      await mpDataCollection.doc(queryRef.docs[0].id).update(mpd);
-    } else
-      print(
-          'ERROR: ${queryRef.docs.length} docs for ${mpd['mpid']},${mpd['date']}');
+    String docid = mpd['mpid'] + '_' + DateFormat('yyMMdd').format(mpd['date']);
+    await mpDataCollection.doc(docid).set(mpd);
   }
 
   Future<QuerySnapshot> getMealPlanData(String mpid, DateTime date) async {

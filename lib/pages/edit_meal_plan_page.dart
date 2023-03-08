@@ -37,6 +37,7 @@ class _EditMealPlanState extends State<EditMealPlan> {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
     MealPlan mp = settings.mealPlans[widget.index];
     MealPlanRole mpr = settings.getMprs()[widget.index];
+    String myemail = settings.getUser().email;
 
     return Scaffold(
       appBar: AppBar(
@@ -119,9 +120,22 @@ class _EditMealPlanState extends State<EditMealPlan> {
                 ] +
                 mp.admins
                     .map(
-                      (e) => Text(
-                        e,
-                        style: settingsTextStyle,
+                      (e) => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(e, style: settingsTextStyle),
+                          (e == myemail)
+                              ? Text(
+                                  ' (ME)',
+                                  style: settingsTextStyle,
+                                )
+                              : IconButton(
+                                  onPressed: () => _delAdmin(e),
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  )),
+                        ],
                       ),
                     )
                     .toList() +
@@ -131,9 +145,8 @@ class _EditMealPlanState extends State<EditMealPlan> {
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue),
-                        onPressed: (mpr.mpRole != MpRole.admin)
-                            ? null
-                            : () => _addAdmin(),
+                        onPressed:
+                            (mpr.mpRole != MpRole.admin) ? null : _addAdmin,
                         child: Text('Add Admin')),
                   ),
                   SizedBox(height: 20),
@@ -153,7 +166,7 @@ class _EditMealPlanState extends State<EditMealPlan> {
                 mp.members
                     .map(
                       (e) => Text(
-                        e,
+                        e + ((e == myemail) ? ' (ME)' : ''),
                         style: settingsTextStyle,
                       ),
                     )
@@ -186,7 +199,7 @@ class _EditMealPlanState extends State<EditMealPlan> {
                 mp.viewers
                     .map(
                       (e) => Text(
-                        e,
+                        e + ((e == myemail) ? ' (ME)' : ''),
                         style: settingsTextStyle,
                       ),
                     )
@@ -263,16 +276,39 @@ class _EditMealPlanState extends State<EditMealPlan> {
         settings.mealPlans[widget.index].admins.add(emailToAdd);
         settings.mealPlans[widget.index].members.remove(emailToAdd);
         settings.mealPlans[widget.index].viewers.remove(emailToAdd);
-        DBService(email: settings.getUser().email).updateMealPlan(
+        await DBService(email: settings.getUser().email).updateMealPlan(
             settings.mealPlans[widget.index].toJson(), mpr.mpid);
 
         showToast(context, 'Added user \'$emailToAdd\' as admin');
 
         // Add this meal plan to the new admin too
         otherCfg.updateMpRoleOther(mpr.mpid, MpRole.admin);
-        DBService(email: emailToAdd).updateOtherUserData(emailToAdd, otherCfg);
+        await DBService(email: emailToAdd)
+            .updateOtherUserData(emailToAdd, otherCfg);
+
+        // TBD: Need to update other user state on device
       }
     }
+    setState(() {});
+  }
+
+  Future _delAdmin(String e) async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    MealPlanRole mpr = settings.getMprs()[widget.index];
+
+    settings.mealPlans[widget.index].admins.remove(e);
+    await DBService(email: settings.getUser().email)
+        .updateMealPlan(settings.mealPlans[widget.index].toJson(), mpr.mpid);
+
+    // Remove this meal plan from the deleted user's settings
+    DocumentSnapshot doc = await DBService(email: e).getOtherUser(e);
+    YogaSettings otherCfg =
+        YogaSettings.fromJson(doc.data() as Map<String, dynamic>);
+    otherCfg.delMpRoleOther(mpr.mpid);
+    await DBService(email: e).updateOtherUserData(e, otherCfg);
+
+    // TBD: Need to update other user state on device
+
     setState(() {});
   }
 

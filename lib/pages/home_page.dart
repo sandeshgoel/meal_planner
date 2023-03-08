@@ -27,7 +27,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final AuthService _auth = AuthService();
-  final _skey1 = GlobalKey();
 
   Future<bool> _shared() async {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
@@ -48,27 +47,13 @@ class _MyHomePageState extends State<MyHomePage> {
             MealPlan mp = settings.mealPlans[settings.getCurMpIndex()];
             int shared =
                 mp.admins.length + mp.members.length + mp.viewers.length - 1;
+            List<String> slist = mp.admins + mp.members;
 
             return ShowCaseWidget(
               builder: Builder(builder: (context) {
                 return Scaffold(
                   appBar: AppBar(
                     actions: [
-                      Showcase(
-                        key: _skey1,
-                        description: 'Click here to refresh user data',
-                        overlayPadding: const EdgeInsets.fromLTRB(-5, 0, 5, 0),
-                        contentPadding: const EdgeInsets.all(20),
-                        shapeBorder: const CircleBorder(),
-                        child: IconButton(
-                          onPressed: () async {
-                            await settings.refreshCache();
-                            showToast(context, 'Refresh completed');
-                            setState(() {});
-                          },
-                          icon: const Icon(Icons.refresh),
-                        ),
-                      ),
                       IconButton(
                         onPressed: () {
                           Navigator.of(context).push(
@@ -82,21 +67,20 @@ class _MyHomePageState extends State<MyHomePage> {
                         icon: const Icon(
                             IconData(0xf5a9, fontFamily: 'MaterialIcons')),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.help_rounded),
-                        onPressed: () {
-                          setState(() {
-                            ShowCaseWidget.of(context).startShowCase([_skey1]);
-                          });
-                        },
-                      ),
                     ],
-                    title: Row(
-                      children: [
-                        Icon((shared > 0) ? Icons.group : Icons.group_off),
-                        SizedBox(width: 10),
-                        Text(mp.name, style: const TextStyle(fontSize: 18)),
-                      ],
+                    title: Tooltip(
+                      message: (shared > 0)
+                          ? 'This plan has been shared with ' +
+                              slist.join(', ') +
+                              '.'
+                          : 'This plan has not been shared!',
+                      child: Row(
+                        children: [
+                          Icon((shared > 0) ? Icons.group : Icons.group_off),
+                          SizedBox(width: 10),
+                          Text(mp.name, style: const TextStyle(fontSize: 18)),
+                        ],
+                      ),
                     ),
                   ),
                   drawer: _drawer(context, settings),
@@ -160,7 +144,10 @@ class _MyHomePageState extends State<MyHomePage> {
               Icon(Icons.note), () {}),
           Divider(),
           _drawerItem(
-              context, 'Manage Meal plans', Icon(Icons.edit), _manageMealPlan),
+              context,
+              'Manage Meal plans (${settings.getMprs().length})',
+              Icon(Icons.edit),
+              _manageMealPlan),
           _drawerItem(context, 'Logout', Icon(Icons.logout), _logout),
           Divider(),
           _drawerItem(context, 'Settings', Icon(Icons.settings), _editSettings),
@@ -170,10 +157,20 @@ class _MyHomePageState extends State<MyHomePage> {
               ? _drawerItem(
                   context, 'Manage Users', Icon(Icons.person), _manageUsers)
               : Container()),
+          _drawerItem(context, 'Refresh settings', Icon(Icons.refresh),
+              _refreshSettings),
           _drawerItem(context, 'About', Icon(Icons.info), _about),
         ],
       ),
     );
+  }
+
+  Future _refreshSettings() async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+
+    await settings.refreshCache();
+    showToast(context, 'Refresh completed');
+    setState(() {});
   }
 
   void _manageUsers() {

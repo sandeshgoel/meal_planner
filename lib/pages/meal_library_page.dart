@@ -94,7 +94,7 @@ class _MealLibraryState extends State<MealLibrary> {
                     ),
                   ),
                 ),
-                SizedBox(height: 60),
+                SizedBox(height: 80),
               ]),
     );
   }
@@ -198,7 +198,15 @@ class _MealLibraryState extends State<MealLibrary> {
           ],
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                controller1.clear();
+                controller2.clear();
+                Navigator.of(context).pop(['', '']);
+              },
+              child: Text('Cancel')),
+          ElevatedButton(
               onPressed: () {
                 String label = controller1.text;
                 String name = controller2.text;
@@ -206,13 +214,15 @@ class _MealLibraryState extends State<MealLibrary> {
                 controller2.clear();
                 Navigator.of(context).pop([label, name]);
               },
-              child: Text('Submit'))
+              child: Text('Submit')),
         ],
       ),
     );
 
     String label = name[0].trim();
     String display = name[1].trim().toTitleCase();
+
+    if (label.isEmpty & display.isEmpty) return;
 
     if (label.isEmpty) {
       showMsg(context, 'Label can\'t be empty, try again!!');

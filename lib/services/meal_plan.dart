@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 class MealPlan {
@@ -53,18 +55,21 @@ class MealPlanData {
   late String breakfast;
   late String lunch;
   late String dinner;
+  late Map<String, dynamic> other;
 
   MealPlanData(
       {required String mpid,
       required DateTime date,
       String breakfast = '',
       String lunch = '',
-      String dinner = ''}) {
+      String dinner = '',
+      Map<String, dynamic>? other}) {
     this.mpid = mpid;
     this.date = date;
     this.breakfast = breakfast;
     this.lunch = lunch;
     this.dinner = dinner;
+    this.other = other ?? {};
   }
 
   MealPlanData.fromJson(jval) {
@@ -73,6 +78,7 @@ class MealPlanData {
     this.breakfast = jval['breakfast'];
     this.lunch = jval['lunch'];
     this.dinner = jval['dinner'];
+    this.other = json.decode(jval['other'] ?? '{}');
   }
 
   Map<String, dynamic> toJson() {
@@ -82,6 +88,7 @@ class MealPlanData {
       'breakfast': this.breakfast,
       'lunch': this.lunch,
       'dinner': this.dinner,
+      'other': json.encode(this.other),
     };
   }
 }
@@ -139,23 +146,25 @@ class DayMeal {
   late String breakfast;
   late String lunch;
   late String dinner;
+  late Map<String, dynamic> other;
 
-  DayMeal(this.breakfast, this.lunch, this.dinner);
+  DayMeal(this.breakfast, this.lunch, this.dinner, this.other);
 
-  bool equalTo(DayMeal other) {
-    if ((breakfast == other.breakfast) &
-        (lunch == other.lunch) &
-        (dinner == other.dinner))
+  bool equalTo(DayMeal o) {
+    if ((breakfast == o.breakfast) &
+        (lunch == o.lunch) &
+        (dinner == o.dinner) &
+        (mapEquals(other, o.other)))
       return true;
     else
       return false;
   }
 
   String toString() {
-    return '$breakfast,$lunch,$dinner';
+    return '$breakfast,$lunch,$dinner,$other';
   }
 
   DayMeal copy() {
-    return DayMeal(breakfast, lunch, dinner);
+    return DayMeal(breakfast, lunch, dinner, {...other});
   }
 }

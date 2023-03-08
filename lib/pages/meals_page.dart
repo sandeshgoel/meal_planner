@@ -49,7 +49,9 @@ class _MealsPageState extends State<MealsPage> {
                 child: Column(
                   children: [
                     Container(
-                      color: Colors.lightBlue[100],
+                      color: (day == today)
+                          ? Colors.red[100]
+                          : Colors.lightBlue[100],
                       margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,10 +67,19 @@ class _MealsPageState extends State<MealsPage> {
                             },
                             icon: const Icon(Icons.arrow_back),
                           ),
-                          Text(
-                            'Week of $formatted',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
+                          Row(
+                            children: [
+                              Text(
+                                'Week of ',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                              Text(
+                                '$formatted',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                            ],
                           ),
                           IconButton(
                             onPressed: () {
@@ -87,9 +98,11 @@ class _MealsPageState extends State<MealsPage> {
                     Column(
                       children: dayList,
                     ),
-                    const SizedBox(
-                      height: 20,
-                    )
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                        onPressed: _copyLastWeek,
+                        child: Text('Copy from last week')),
+                    const SizedBox(height: 50),
                   ],
                 ),
               );
@@ -123,12 +136,53 @@ class _MealsPageState extends State<MealsPage> {
     );
   }
 
+  void _copyLastWeek() async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    int copied = 0;
+
+    bool confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Are you sure?',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text('This will overwrite the current week\'s data'),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text('Yes')),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text('No')),
+        ],
+      ),
+    );
+
+    if (!confirm) return;
+
+    for (int i = 0; i < 7; i++) {
+      DateTime dstDay = day.add(Duration(days: i));
+      DateTime srcDay = dstDay.subtract(Duration(days: 7));
+      if (settings.mealPlanData[srcDay] != null) {
+        await settings.saveMealPlanData(dstDay, settings.mealPlanData[srcDay]!);
+        copied++;
+      }
+    }
+    setState(() {});
+    showMsg(context, 'Copied $copied days!!');
+  }
+
   List<Widget> _dayList(DateTime day, Map<DateTime, DayMeal> mealMap) {
     List<Widget> ret = [];
 
     for (var i = 0; i < 7; i++) {
       DateTime nday = day.add(Duration(days: i));
-      ret.add(_dayTile(nday, mealMap[nday] ?? DayMeal('', '', '')));
+      ret.add(_dayTile(nday, mealMap[nday] ?? DayMeal('', '', '', {})));
     }
     return ret;
   }
@@ -141,81 +195,194 @@ class _MealsPageState extends State<MealsPage> {
     return Card(
       margin: const EdgeInsets.fromLTRB(10, 20, 10, 0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      child: Container(
-        margin: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-              //padding: const EdgeInsets.all(5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    formatted,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  (date == today)
-                      ? Container(
-                          padding: EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                              color: Colors.red[100],
-                              borderRadius: BorderRadius.circular(5)),
-                          child: Text(
-                            '  TODAY  ',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      : Container(),
-                  IconButton(
-                      onPressed: () {
-                        _editMeal(date, dayMeal);
-                      },
-                      icon: Icon(Icons.edit)),
-                ],
-              ),
+      child: Column(
+        children: [
+          // date
+
+          Container(
+            margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formatted,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                (date == today)
+                    ? Container(
+                        padding: EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                            color: Colors.red[100],
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Text(
+                          '  TODAY  ',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : Container(),
+                IconButton(
+                    onPressed: () {
+                      _editMeal(date, dayMeal);
+                    },
+                    icon: Icon(Icons.edit)),
+              ],
             ),
-            Container(
-              margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-              padding: const EdgeInsets.all(5),
-              color: Colors.lightGreen,
-              child: Row(
-                children: [
-                  Text(
-                    'Breakfast: ${settings.meals[dayMeal.breakfast]}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+
+          // breakfast snack
+
+          (settings.getBsnack()
+              ? Container(
+                  margin: const EdgeInsets.fromLTRB(45, 10, 10, 0),
+                  padding: const EdgeInsets.all(5),
+                  color: Colors.lightBlue[100],
+                  child: Row(
+                    children: [
+                      Text(
+                        'Snack: ${settings.meals[dayMeal.other[BSNACK] ?? '']}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-              padding: const EdgeInsets.all(5),
-              color: Colors.yellow,
-              child: Row(
-                children: [
-                  Text(
-                    'Lunch: ${settings.meals[dayMeal.lunch]}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                )
+              : Container()),
+
+          // breakfast
+
+          SizedBox(height: 10),
+          Row(
+            children: [
+              SizedBox(width: 10),
+              Icon(Icons.free_breakfast),
+              Flexible(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.all(5),
+                  color: Colors.lightGreen,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        '${settings.meals[dayMeal.breakfast]}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        settings.getBside()
+                            ? '${settings.meals[dayMeal.other[BSIDE] ?? '']}'
+                            : '',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-            Container(
-              margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-              padding: const EdgeInsets.all(5),
-              color: Colors.orange,
-              child: Row(
-                children: [
-                  Text(
-                    'Dinner: ${settings.meals[dayMeal.dinner]}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+            ],
+          ),
+
+          // lunch snack
+
+          (settings.getLsnack()
+              ? Container(
+                  margin: const EdgeInsets.fromLTRB(45, 10, 10, 0),
+                  padding: const EdgeInsets.all(5),
+                  color: Colors.lightBlue[100],
+                  child: Row(
+                    children: [
+                      Text(
+                        'Snack: ${settings.meals[dayMeal.other[LSNACK] ?? '']}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                ],
+                )
+              : Container()),
+
+          // lunch
+
+          SizedBox(height: 10),
+          Row(
+            children: [
+              SizedBox(width: 10),
+              Icon(Icons.lunch_dining),
+              Flexible(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.all(5),
+                  color: Colors.yellow,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        '${settings.meals[dayMeal.lunch]}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        settings.getLside()
+                            ? '${settings.meals[dayMeal.other[LSIDE] ?? '']}'
+                            : '',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+
+          // dinner snack
+
+          (settings.getDsnack()
+              ? Container(
+                  margin: const EdgeInsets.fromLTRB(45, 10, 10, 0),
+                  padding: const EdgeInsets.all(5),
+                  color: Colors.lightBlue[100],
+                  child: Row(
+                    children: [
+                      Text(
+                        'Snack: ${settings.meals[dayMeal.other[DSNACK] ?? '']}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                )
+              : Container()),
+
+          // dinner
+
+          SizedBox(height: 10),
+          Row(
+            children: [
+              SizedBox(width: 10),
+              Icon(Icons.dinner_dining),
+              Flexible(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.all(5),
+                  color: Colors.orange,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        '${settings.meals[dayMeal.dinner]}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        settings.getDside()
+                            ? '${settings.meals[dayMeal.other[DSIDE] ?? '']}'
+                            : '',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 15),
+        ],
       ),
     );
   }

@@ -33,7 +33,7 @@ class _AuthenticatePageState extends State<AuthenticatePage> {
         ? Loading()
         : Scaffold(
             appBar: AppBar(
-              title: Text('Welcome to Meal Planner'),
+              title: Text('Welcome to Family Meal Planner'),
             ),
             body: Stack(
               children: [
