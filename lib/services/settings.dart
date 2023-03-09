@@ -355,7 +355,9 @@ class YogaSettings with ChangeNotifier {
   }
 
   Future getAllMealPlans() async {
-    if (_mprs.length == 0) addMealPlan('My Meal Plan');
+    String firstname = _user.name.split(' ')[0].trim();
+    if (firstname == '') firstname = 'My';
+    if (_mprs.length == 0) addMealPlan(firstname + ' Meal Plan');
 
     mealPlans = [];
     for (int i = 0; i < _mprs.length; i++)

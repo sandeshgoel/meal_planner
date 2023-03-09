@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_planner/pages/add_meal_lib_page.dart';
 import 'package:meal_planner/pages/edit_meal_lib_page.dart';
 import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
@@ -17,6 +18,7 @@ class _MealLibraryState extends State<MealLibrary> {
   late TextEditingController controller1;
   late TextEditingController controller2;
   late TextEditingController controller3;
+  late MealCategory category;
 
   @override
   void initState() {
@@ -24,6 +26,7 @@ class _MealLibraryState extends State<MealLibrary> {
     controller1 = TextEditingController();
     controller2 = TextEditingController();
     controller3 = TextEditingController();
+    category = MealCategory.snack;
   }
 
   @override
@@ -158,90 +161,12 @@ class _MealLibraryState extends State<MealLibrary> {
   }
 
   void _addMeal() async {
-    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
-    MealCategory category = MealCategory.snack;
-
-    List<String> name = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Add Meal',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          children: [
-            TextField(
-              controller: controller1,
-              autofocus: true,
-              decoration: InputDecoration(hintText: 'Enter label'),
-            ),
-            TextField(
-              controller: controller2,
-              decoration: InputDecoration(hintText: 'Enter display name'),
-            ),
-            DropdownButton<MealCategory>(
-              value: category,
-              items: MealCategory.values
-                  .map((k) => DropdownMenuItem<MealCategory>(
-                      value: k,
-                      child: Text(
-                        displayCategory(k),
-                        style: TextStyle(fontSize: 12),
-                      )))
-                  .toList(),
-              onChanged: (MealCategory? newValue) {
-                setState(() {
-                  category = newValue!;
-                });
-              },
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () {
-                controller1.clear();
-                controller2.clear();
-                Navigator.of(context).pop(['', '']);
-              },
-              child: Text('Cancel')),
-          ElevatedButton(
-              onPressed: () {
-                String label = controller1.text;
-                String name = controller2.text;
-                controller1.clear();
-                controller2.clear();
-                Navigator.of(context).pop([label, name]);
-              },
-              child: Text('Submit')),
-        ],
-      ),
-    );
-
-    String label = name[0].trim();
-    String display = name[1].trim().toTitleCase();
-
-    if (label.isEmpty & display.isEmpty) return;
-
-    if (label.isEmpty) {
-      showMsg(context, 'Label can\'t be empty, try again!!');
-    } else if (display.isEmpty) {
-      showMsg(context, 'Name can\'t be empty, try again!!');
-    } else if (label.contains(' ')) {
-      showMsg(context, 'Label can\'t contain space, try again!!');
-    } else if (settings.meals.keys.any((x) => x == label)) {
-      showMsg(context, 'Meal label \'$label\' already exists!!');
-    } else if (settings.meals.values.any((x) => x == display)) {
-      showMsg(context, 'Meal name \'$display\' already exists!!');
-    } else {
-      Meal m = Meal(label: label, display_name: display, category: category);
-      settings.meals[label] = display;
-      settings.mealsCategory[label] = category;
-      await DBService(email: settings.getUser().email)
-          .addMeal(m.toJson(), label);
-      showToast(context, 'Added Meal $label,$display');
-    }
-    setState(() {});
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (BuildContext context) {
+        return AddMealLib();
+      }),
+    ).then((value) {
+      setState(() {});
+    });
   }
 }

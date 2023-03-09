@@ -48,6 +48,62 @@ class _EditMealPlanState extends State<EditMealPlan> {
           margin: EdgeInsets.all(10),
           child: Column(
             children: [
+                  // Plan name
+
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Text('Plan name: ', style: settingsTextStyle),
+                      Expanded(
+                        child: Container(),
+                      ),
+                      Text(mp.name, style: settingsTextStyle),
+                      SizedBox(width: 20),
+                      ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                content: TextField(controller: controller),
+                                title: Text('Enter new plan name:'),
+                                actions: [
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        controller.clear();
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('Cancel')),
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        String newname = controller.text.trim();
+                                        controller.clear();
+
+                                        if (newname != '') {
+                                          print('New plan name: $newname');
+                                          settings.mealPlans[widget.index]
+                                              .name = newname;
+                                          await DBService(
+                                                  email:
+                                                      settings.getUser().email)
+                                              .updateMealPlan(
+                                                  settings
+                                                      .mealPlans[widget.index]
+                                                      .toJson(),
+                                                  mpr.mpid);
+                                          setState(() {});
+                                          Navigator.pop(context);
+                                        }
+                                      },
+                                      child: Text('Save'))
+                                ],
+                              ),
+                            );
+                          },
+                          child: Text('Change')),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+
                   // currently selected or not
 
                   Row(

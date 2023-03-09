@@ -261,19 +261,22 @@ class _MealsPageState extends State<MealsPage> {
                   color: Colors.lightGreen,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        '${settings.meals[dayMeal.breakfast]}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        settings.getBside()
-                            ? '${settings.meals[dayMeal.other[BSIDE] ?? '']}'
-                            : '',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                    children: <Widget>[
+                          Text(
+                            '${settings.meals[dayMeal.breakfast]}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ] +
+                        (settings.getBside()
+                            ? <Widget>[
+                                SizedBox(height: 5),
+                                Text(
+                                  '${settings.meals[dayMeal.other[BSIDE] ?? '']}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ]
+                            : []),
                   ),
                 ),
               ),
@@ -312,19 +315,22 @@ class _MealsPageState extends State<MealsPage> {
                   color: Colors.yellow,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        '${settings.meals[dayMeal.lunch]}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        settings.getLside()
-                            ? '${settings.meals[dayMeal.other[LSIDE] ?? '']}'
-                            : '',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                    children: <Widget>[
+                          Text(
+                            '${settings.meals[dayMeal.lunch]}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ] +
+                        (settings.getLside()
+                            ? <Widget>[
+                                SizedBox(height: 5),
+                                Text(
+                                  '${settings.meals[dayMeal.other[LSIDE] ?? '']}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ]
+                            : []),
                   ),
                 ),
               ),
@@ -363,19 +369,22 @@ class _MealsPageState extends State<MealsPage> {
                   color: Colors.orange,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        '${settings.meals[dayMeal.dinner]}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        settings.getDside()
-                            ? '${settings.meals[dayMeal.other[DSIDE] ?? '']}'
-                            : '',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                    children: <Widget>[
+                          Text(
+                            '${settings.meals[dayMeal.dinner]}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ] +
+                        (settings.getDside()
+                            ? <Widget>[
+                                SizedBox(height: 5),
+                                Text(
+                                  '${settings.meals[dayMeal.other[DSIDE] ?? '']}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ]
+                            : []),
                   ),
                 ),
               ),

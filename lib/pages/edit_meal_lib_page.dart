@@ -40,6 +40,7 @@ class _EditMealLibState extends State<EditMealLib> {
         title: Text('Edit meal \'${widget.label}\''),
       ),
       body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 10),
         child: Column(
           children: [
             SizedBox(height: 20),
