@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:meal_planner/pages/add_meal_lib_page.dart';
 import 'package:meal_planner/pages/edit_meal_lib_page.dart';
-import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
 import 'package:meal_planner/services/settings.dart';
-import 'package:meal_planner/shared/constants.dart';
 import 'package:provider/provider.dart';
 
 class MealLibrary extends StatefulWidget {

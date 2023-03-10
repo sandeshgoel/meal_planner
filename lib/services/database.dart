@@ -85,6 +85,12 @@ class DBService {
     await mpDataCollection.doc(docid).set(mpd);
   }
 
+  Future delMealPlanData(String mpid, DateTime date) async {
+    String docid = mpid + '_' + DateFormat('yyMMdd').format(date);
+    print('Deleting from mealplanData, $docid ...');
+    await mpDataCollection.doc(docid).delete();
+  }
+
   Future<QuerySnapshot> getMealPlanData(String mpid, DateTime date) async {
     print('Getting from mealplanData, mpid $mpid $date ...');
     return await mpDataCollection
@@ -121,5 +127,4 @@ class DBService {
   }
 
 // -------------------------------------------------
-
 }

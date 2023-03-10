@@ -263,8 +263,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
-                    image: NetworkImage(
-                        _photo), // AssetImage("assets/icon/yoga_icon_circular.png"),
+                    image: (_photo == '')
+                        ? AssetImage("assets/icon/yoga_icon_circular.png")
+                            as ImageProvider
+                        : NetworkImage(_photo),
                   ),
                 ),
               ),

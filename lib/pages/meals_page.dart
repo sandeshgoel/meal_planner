@@ -48,6 +48,8 @@ class _MealsPageState extends State<MealsPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
+                    // week header
+
                     Container(
                       color: (day == today)
                           ? Colors.red[100]
@@ -95,13 +97,29 @@ class _MealsPageState extends State<MealsPage> {
                         ],
                       ),
                     ),
+
+                    // copy button
+
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                            onPressed: _copyLastWeek,
+                            child: Text('Copy from last week')),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red),
+                            onPressed: _clearWeek,
+                            child: Text('Clear this week')),
+                      ],
+                    ),
+
+                    // daily cards
+
                     Column(
                       children: dayList,
                     ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                        onPressed: _copyLastWeek,
-                        child: Text('Copy from last week')),
                     const SizedBox(height: 50),
                   ],
                 ),
@@ -138,7 +156,6 @@ class _MealsPageState extends State<MealsPage> {
 
   void _copyLastWeek() async {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
-    int copied = 0;
 
     bool confirm = await showDialog(
       context: context,
@@ -147,34 +164,93 @@ class _MealsPageState extends State<MealsPage> {
           'Are you sure?',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: Text('This will overwrite the current week\'s data'),
+        content: Text(
+            'This will NOT overwrite the days below on which meal entries are present'),
         actions: [
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text('Cancel')),
           ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
               child: Text('Yes')),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: Text('No')),
         ],
       ),
     );
 
     if (!confirm) return;
 
+    int copied = 0, skipped = 0, srcNull = 0;
+
     for (int i = 0; i < 7; i++) {
       DateTime dstDay = day.add(Duration(days: i));
       DateTime srcDay = dstDay.subtract(Duration(days: 7));
       if (settings.mealPlanData[srcDay] != null) {
-        await settings.saveMealPlanData(dstDay, settings.mealPlanData[srcDay]!);
-        copied++;
-      }
+        if (settings.mealPlanData[dstDay] != null) {
+          if (settings.mealPlanData[dstDay]!.empty()) {
+            await settings.saveMealPlanData(
+                dstDay, settings.mealPlanData[srcDay]!);
+            copied++;
+          } else
+            skipped++;
+        } else {
+          await settings.saveMealPlanData(
+              dstDay, settings.mealPlanData[srcDay]!);
+          copied++;
+        }
+      } else
+        srcNull++;
     }
     setState(() {});
-    showMsg(context, 'Copied $copied days!!');
+    showMsg(context,
+        'Copied $copied days. skipped $skipped days ($srcNull days empty in last week)!!');
+  }
+
+  void _clearWeek() async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+
+    bool confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Are you sure?',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+            'This will delete all meal entries for the entire current week'),
+        actions: [
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text('Cancel')),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text('Yes')),
+        ],
+      ),
+    );
+
+    if (!confirm) return;
+
+    int deleted = 0;
+    for (int i = 0; i < 7; i++) {
+      DateTime dstDay = day.add(Duration(days: i));
+      if (settings.mealPlanData[dstDay] != null) {
+        await settings.delMealPlanData(dstDay);
+        deleted++;
+      }
+    }
+
+    setState(() {});
+    showMsg(context, 'Deleted $deleted days!!');
   }
 
   List<Widget> _dayList(DateTime day, Map<DateTime, DayMeal> mealMap) {

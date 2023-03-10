@@ -167,4 +167,11 @@ class DayMeal {
   DayMeal copy() {
     return DayMeal(breakfast, lunch, dinner, {...other});
   }
+
+  bool empty() {
+    if ((breakfast == '') & (lunch == '') & (dinner == '') & other.isEmpty)
+      return true;
+    else
+      return false;
+  }
 }

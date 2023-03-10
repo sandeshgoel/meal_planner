@@ -415,6 +415,11 @@ class YogaSettings with ChangeNotifier {
     mealPlanData[date] = dayMeal;
   }
 
+  Future delMealPlanData(DateTime date) async {
+    await DBService(email: _user.email)
+        .delMealPlanData(_mprs[_curMpIndex].mpid, date);
+    mealPlanData.removeWhere((key, value) => key == date);
+  }
   // ----------------------------------------------------
 
   Future getAllMeals() async {
