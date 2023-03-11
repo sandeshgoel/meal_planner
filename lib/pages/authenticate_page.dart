@@ -66,7 +66,7 @@ class _AuthenticatePageState extends State<AuthenticatePage> {
             children: [
               SizedBox(height: 10),
               Image.asset(
-                "assets/icon/yoga_icon_circular.png",
+                "assets/icon/meal_easy_icon.png",
                 height: 80,
                 width: 80,
               ),
@@ -297,12 +297,12 @@ class _AuthenticatePageState extends State<AuthenticatePage> {
               // Webpage link
               RichText(
                 text: TextSpan(
-                  text: 'https://sites.google.com/view/yogabuddy',
+                  text: 'https://sites.google.com/view/mealeasy',
                   style: TextStyle(
                       color: Colors.blue, decoration: TextDecoration.underline),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
-                      final url = 'https://sites.google.com/view/yogabuddy';
+                      final url = 'https://sites.google.com/view/mealeasy';
                       if (await canLaunchUrlString(url)) {
                         await launchUrlString(
                           url,

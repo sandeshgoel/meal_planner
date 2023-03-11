@@ -264,7 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     image: (_photo == '')
-                        ? AssetImage("assets/icon/yoga_icon_circular.png")
+                        ? AssetImage("assets/icon/meal_easy_icon.png")
                             as ImageProvider
                         : NetworkImage(_photo),
                   ),
@@ -319,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       applicationVersion: 'Ver $version +$buildNumber',
       applicationIcon: Image.asset(
-        "assets/icon/yoga_icon_circular.png",
+        "assets/icon/meal_easy_icon.png",
         height: 40,
         width: 40,
       ),

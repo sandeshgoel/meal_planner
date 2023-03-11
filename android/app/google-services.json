@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1095305802843:android:279549b1d48f4e2ff43b7e",
+        "mobilesdk_app_id": "1:1095305802843:android:06286a0a862749f9f43b7e",
         "android_client_info": {
-          "package_name": "com.example.meal_planner"
+          "package_name": "com.sandeshgoel.meal_planner"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "1095305802843-mtf86luc81dia0h71frh601ahldtf1c6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sandeshgoel.meal_planner",
+            "certificate_hash": "a6957b9d175f0fb66239b13c1b26c8d0af97844e"
+          }
+        },
         {
           "client_id": "1095305802843-ruana11ojarldglgm5vaqfanhso5d91d.apps.googleusercontent.com",
           "client_type": 3

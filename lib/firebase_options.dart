@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCaPtCnJ7L0SEqFRybrrAvcEwvls36SPPE',
-    appId: '1:1095305802843:android:279549b1d48f4e2ff43b7e',
+    appId: '1:1095305802843:android:06286a0a862749f9f43b7e',
     messagingSenderId: '1095305802843',
     projectId: 'meal-planner-app-23550',
     storageBucket: 'meal-planner-app-23550.appspot.com',
@@ -66,6 +66,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1095305802843',
     projectId: 'meal-planner-app-23550',
     storageBucket: 'meal-planner-app-23550.appspot.com',
+    androidClientId: '1095305802843-cuqbjovi6l6rcgbgeajumvbbbmrsjblv.apps.googleusercontent.com',
     iosClientId: '1095305802843-12bfo2qoef12oaedd395hcg8ecvnm2v6.apps.googleusercontent.com',
     iosBundleId: 'com.example.mealPlanner',
   );
@@ -76,6 +77,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1095305802843',
     projectId: 'meal-planner-app-23550',
     storageBucket: 'meal-planner-app-23550.appspot.com',
+    androidClientId: '1095305802843-cuqbjovi6l6rcgbgeajumvbbbmrsjblv.apps.googleusercontent.com',
     iosClientId: '1095305802843-12bfo2qoef12oaedd395hcg8ecvnm2v6.apps.googleusercontent.com',
     iosBundleId: 'com.example.mealPlanner',
   );
