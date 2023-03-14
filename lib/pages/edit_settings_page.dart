@@ -44,11 +44,7 @@ class _EditSettingsPageState extends State<EditSettingsPage> {
                 colors: [Colors.lime, Colors.white],
                 end: Alignment.topLeft,
                 begin: Alignment.bottomRight,
-              ), /*
-              image: DecorationImage(
-                image: AssetImage("assets/images/bg-blue.jpeg"),
-                fit: BoxFit.cover,
-              ),*/
+              ),
             ),
           ),
           _editSettingsPage(),

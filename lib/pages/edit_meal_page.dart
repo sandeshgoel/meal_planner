@@ -54,6 +54,47 @@ class _EditMealState extends State<EditMeal> {
               ),
             ),
 
+            // Action buttons
+
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Cancel')),
+                  ElevatedButton(
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () async {
+                        await settings.delMealPlanData(widget.date);
+                        _lastSaved = DayMeal('', '', '', {});
+                        print('Clear pressed');
+                        setState(() {});
+                        Navigator.pop(context);
+                      },
+                      child: Text('Clear')),
+                  ElevatedButton(
+                      onPressed: (_lastSaved.equalTo(widget.dayMeal))
+                          ? null
+                          : () async {
+                              await settings.saveMealPlanData(
+                                  widget.date, widget.dayMeal);
+                              _lastSaved = widget.dayMeal.copy();
+                              print('Save pressed');
+                              setState(() {});
+                              Navigator.pop(context);
+                            },
+                      child: Text('Save')),
+                ],
+              ),
+            ),
+
             // breakfast
             (settings.getBsnack() ? _editMealTile(BSNACK) : Container()),
             _editMealTile(BREAKFAST),
@@ -67,7 +108,7 @@ class _EditMealState extends State<EditMeal> {
             _editMealTile(DINNER),
             (settings.getDside() ? _editMealTile(DSIDE) : Container()),
 
-            // Save
+            // Action buttons
 
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -75,12 +116,23 @@ class _EditMealState extends State<EditMeal> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange),
                       onPressed: () {
                         Navigator.pop(context);
                       },
                       child: Text('Cancel')),
+                  ElevatedButton(
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () async {
+                        await settings.delMealPlanData(widget.date);
+                        _lastSaved = DayMeal('', '', '', {});
+                        print('Clear pressed');
+                        setState(() {});
+                        Navigator.pop(context);
+                      },
+                      child: Text('Clear')),
                   ElevatedButton(
                       onPressed: (_lastSaved.equalTo(widget.dayMeal))
                           ? null
