@@ -150,7 +150,12 @@ class YogaSettings with ChangeNotifier {
     _superUser = false;
     _mpIndex = 0;
     _notify = defNotify;
-    _bside = _bsnack = _lside = _lsnack = _dside = _dsnack = false;
+    _bside = false;
+    _bsnack = false;
+    _lside = false;
+    _lsnack = false;
+    _dside = false;
+    _dsnack = false;
 
     meals = {};
     mealsCategory = {};
@@ -197,6 +202,7 @@ class YogaSettings with ChangeNotifier {
   // ----------------------------------------------------
 
   YogaSettings.fromJson(Map<String, dynamic> jval) {
+    initSettings();
     _user = UserInfo.fromJson(jval['user'] ?? (_user).toJson());
     _mprs = (jval['mprs'] ?? (this._mprs.map((e) => e.toJson()).toList()))
         .map<MealPlanRole>((x) => MealPlanRole.fromJson(x))

@@ -43,240 +43,270 @@ class _EditMealPlanState extends State<EditMealPlan> {
       appBar: AppBar(
         title: Text('Edit \'${mp.name}\''),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.all(10),
-          child: Column(
-            children: [
-                  // Plan name
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.lime],
+                end: Alignment.topLeft,
+                begin: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            child: Container(
+              margin: EdgeInsets.all(10),
+              child: Column(
+                children: [
+                      // Plan name
 
-                  SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Text('Plan name: ', style: settingsTextStyle),
-                      Expanded(
-                        child: Container(),
-                      ),
-                      Text(mp.name, style: settingsTextStyle),
-                      SizedBox(width: 20),
-                      ElevatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                content: TextField(controller: controller),
-                                title: Text('Enter new plan name:'),
-                                actions: [
-                                  ElevatedButton(
-                                      onPressed: () {
-                                        controller.clear();
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text('Cancel')),
-                                  ElevatedButton(
-                                      onPressed: () async {
-                                        String newname = controller.text.trim();
-                                        controller.clear();
-
-                                        if (newname != '') {
-                                          print('New plan name: $newname');
-                                          settings.mealPlans[widget.index]
-                                              .name = newname;
-                                          await DBService(
-                                                  email:
-                                                      settings.getUser().email)
-                                              .updateMealPlan(
-                                                  settings
-                                                      .mealPlans[widget.index]
-                                                      .toJson(),
-                                                  mpr.mpid);
-                                          setState(() {});
-                                          Navigator.pop(context);
-                                        }
-                                      },
-                                      child: Text('Save'))
-                                ],
-                              ),
-                            );
-                          },
-                          child: Text('Change')),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-
-                  // currently selected or not
-
-                  Row(
-                    children: [
-                      Text('Currently selected', style: settingsTextStyle),
-                      Expanded(
-                        child: Container(),
-                      ),
-                      Switch(
-                        value: widget.index == settings.getCurMpIndex(),
-                        onChanged: (val) {
-                          setState(() {
-                            if (val)
-                              settings.setCurMpIndex(widget.index);
-                            else
-                              showMsg(context,
-                                  'In order to unselect this, just select a different meal plan');
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-
-                  // creator
-
-                  Row(children: [
-                    Text('Creator: ', style: settingsTextStyle),
-                    Expanded(
-                      child: Container(),
-                    ),
-                    Text(mp.creator, style: settingsTextStyle),
-                  ]),
-                  SizedBox(height: 20),
-
-                  // my role
-
-                  Row(children: [
-                    Text('My Role: ', style: settingsTextStyle),
-                    Expanded(
-                      child: Container(),
-                    ),
-                    Text(describeEnum(mpr.mpRole), style: settingsTextStyle),
-                  ]),
-                  SizedBox(height: 20),
-
-                  // time
-
-                  Row(children: [
-                    Text('Create time: ', style: settingsTextStyle),
-                    Expanded(
-                      child: Container(),
-                    ),
-                    Text(DateFormat('MMM dd, y HH:mm').format(mp.createTime),
-                        style: settingsTextStyle),
-                  ]),
-                  SizedBox(height: 20),
-
-                  // admins
-
-                  Divider(),
-                  Center(
-                    child: Text(
-                      'Admins',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                ] +
-                mp.admins
-                    .map(
-                      (e) => Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      SizedBox(height: 20),
+                      Row(
                         children: [
-                          Text(e, style: settingsTextStyle),
-                          (e == myemail)
-                              ? Text(
-                                  ' (ME)',
-                                  style: settingsTextStyle,
-                                )
-                              : IconButton(
-                                  onPressed: () => _delAdmin(e),
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  )),
+                          Text('Plan name: ', style: settingsTextStyle),
+                          Expanded(
+                            child: Container(),
+                          ),
+                          Text(mp.name, style: settingsTextStyle),
+                          SizedBox(width: 20),
+                          ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    content: TextField(controller: controller),
+                                    title: Text('Enter new plan name:'),
+                                    actions: [
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            controller.clear();
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Cancel')),
+                                      ElevatedButton(
+                                          onPressed: () async {
+                                            String newname =
+                                                controller.text.trim();
+                                            controller.clear();
+
+                                            if (newname != '') {
+                                              print('New plan name: $newname');
+                                              settings.mealPlans[widget.index]
+                                                  .name = newname;
+                                              await DBService(
+                                                      email: settings
+                                                          .getUser()
+                                                          .email)
+                                                  .updateMealPlan(
+                                                      settings.mealPlans[
+                                                              widget.index]
+                                                          .toJson(),
+                                                      mpr.mpid);
+                                              setState(() {});
+                                              Navigator.pop(context);
+                                            }
+                                          },
+                                          child: Text('Save'))
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: Text('Change')),
                         ],
                       ),
-                    )
-                    .toList() +
-                [
-                  SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue),
-                        onPressed:
-                            (mpr.mpRole != MpRole.admin) ? null : _addAdmin,
-                        child: Text('Add Admin')),
-                  ),
-                  SizedBox(height: 20),
+                      SizedBox(height: 20),
 
-                  // members
-                  Divider(),
+                      // currently selected or not
 
-                  Center(
-                    child: Text(
-                      'Members',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                ] +
-                mp.members
-                    .map(
-                      (e) => Text(
-                        e + ((e == myemail) ? ' (ME)' : ''),
-                        style: settingsTextStyle,
+                      Row(
+                        children: [
+                          Text('Currently selected', style: settingsTextStyle),
+                          Expanded(
+                            child: Container(),
+                          ),
+                          Switch(
+                            value: widget.index == settings.getCurMpIndex(),
+                            onChanged: (val) {
+                              setState(() {
+                                if (val)
+                                  settings.setCurMpIndex(widget.index);
+                                else
+                                  showMsg(context,
+                                      'In order to unselect this, just select a different meal plan');
+                              });
+                            },
+                          ),
+                        ],
                       ),
-                    )
-                    .toList() +
-                [
-                  SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue),
-                        onPressed: (mpr.mpRole == MpRole.viewer)
-                            ? null
-                            : () => _addMember(),
-                        child: Text('Add Member')),
-                  ),
-                  SizedBox(height: 20),
+                      SizedBox(height: 20),
 
-                  // viewers
+                      // creator
 
-                  Divider(),
-                  Center(
-                    child: Text(
-                      'Viewers',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                ] +
-                mp.viewers
-                    .map(
-                      (e) => Text(
-                        e + ((e == myemail) ? ' (ME)' : ''),
-                        style: settingsTextStyle,
+                      Row(children: [
+                        Text('Creator: ', style: settingsTextStyle),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Text(mp.creator, style: settingsTextStyle),
+                      ]),
+                      SizedBox(height: 20),
+
+                      // my role
+
+                      Row(children: [
+                        Text('My Role: ', style: settingsTextStyle),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Text(describeEnum(mpr.mpRole),
+                            style: settingsTextStyle),
+                      ]),
+                      SizedBox(height: 20),
+
+                      // time
+
+                      Row(children: [
+                        Text('Create time: ', style: settingsTextStyle),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Text(
+                            DateFormat('MMM dd, y HH:mm').format(mp.createTime),
+                            style: settingsTextStyle),
+                      ]),
+                      SizedBox(height: 20),
+
+                      // admins
+
+                      Divider(),
+                      Center(
+                        child: Text(
+                          'Admins',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    )
-                    .toList() +
-                [
-                  SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue),
-                        onPressed: () => _addViewer(),
-                        child: Text('Add Viewer')),
-                  ),
-                  SizedBox(height: 20),
+                      SizedBox(height: 20),
+                    ] +
+                    mp.admins
+                        .map(
+                          (e) => Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(e, style: settingsTextStyle),
+                              (e == myemail)
+                                  ? Text(
+                                      ' (ME)',
+                                      style: settingsTextStyle,
+                                    )
+                                  : IconButton(
+                                      onPressed: () => _delAdmin(e),
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      )),
+                            ],
+                          ),
+                        )
+                        .toList() +
+                    [
+                      SizedBox(height: 20),
+                      Center(
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue),
+                            onPressed:
+                                (mpr.mpRole != MpRole.admin) ? null : _addAdmin,
+                            child: Text('Add Admin')),
+                      ),
+                      SizedBox(height: 20),
 
-                  // delete this
-                  Divider(),
-                  SizedBox(height: 20),
-                ],
+                      // members
+                      Divider(),
+
+                      Center(
+                        child: Text(
+                          'Members',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                    ] +
+                    mp.members
+                        .map(
+                          (e) => Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(e, style: settingsTextStyle),
+                              (e == myemail)
+                                  ? Text(
+                                      ' (ME)',
+                                      style: settingsTextStyle,
+                                    )
+                                  : IconButton(
+                                      onPressed: () => _delMember(e),
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      )),
+                            ],
+                          ),
+                        )
+                        .toList() +
+                    [
+                      SizedBox(height: 20),
+                      Center(
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue),
+                            onPressed: (mpr.mpRole == MpRole.viewer)
+                                ? null
+                                : () => _addMember(),
+                            child: Text('Add Member')),
+                      ),
+                      SizedBox(height: 20),
+
+                      // viewers
+
+                      Divider(),
+                      Center(
+                        child: Text(
+                          'Viewers',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                    ] +
+                    mp.viewers
+                        .map(
+                          (e) => Text(
+                            e + ((e == myemail) ? ' (ME)' : ''),
+                            style: settingsTextStyle,
+                          ),
+                        )
+                        .toList() +
+                    [
+                      SizedBox(height: 20),
+                      Center(
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue),
+                            onPressed: () => _addViewer(),
+                            child: Text('Add Viewer')),
+                      ),
+                      SizedBox(height: 20),
+
+                      // delete this
+                      Divider(),
+                      SizedBox(height: 20),
+                    ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -368,7 +398,59 @@ class _EditMealPlanState extends State<EditMealPlan> {
     setState(() {});
   }
 
-  Future _addMember() async {}
+  Future _addMember() async {
+    DocumentSnapshot doc = await getOtherUserDoc();
+
+    if (!doc.exists) {
+      showMsg(context, 'User does not exist!!');
+    } else {
+      YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+      MealPlanRole mpr = settings.getMprs()[widget.index];
+      YogaSettings otherCfg =
+          YogaSettings.fromJson(doc.data() as Map<String, dynamic>);
+      String emailToAdd = otherCfg.getUser().email;
+
+      if (settings.mealPlans[widget.index].members.contains(emailToAdd)) {
+        showMsg(context, 'User is already a member!!');
+      } else {
+        settings.mealPlans[widget.index].members.add(emailToAdd);
+        settings.mealPlans[widget.index].admins.remove(emailToAdd);
+        settings.mealPlans[widget.index].viewers.remove(emailToAdd);
+        await DBService(email: settings.getUser().email).updateMealPlan(
+            settings.mealPlans[widget.index].toJson(), mpr.mpid);
+
+        showToast(context, 'Added user \'$emailToAdd\' as member');
+
+        // Add this meal plan to the new admin too
+        otherCfg.updateMpRoleOther(mpr.mpid, MpRole.member);
+        await DBService(email: emailToAdd)
+            .updateOtherUserData(emailToAdd, otherCfg);
+
+        // TBD: Need to update other user state on device
+      }
+    }
+    setState(() {});
+  }
+
+  Future _delMember(String e) async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    MealPlanRole mpr = settings.getMprs()[widget.index];
+
+    settings.mealPlans[widget.index].members.remove(e);
+    await DBService(email: settings.getUser().email)
+        .updateMealPlan(settings.mealPlans[widget.index].toJson(), mpr.mpid);
+
+    // Remove this meal plan from the deleted user's settings
+    DocumentSnapshot doc = await DBService(email: e).getOtherUser(e);
+    YogaSettings otherCfg =
+        YogaSettings.fromJson(doc.data() as Map<String, dynamic>);
+    otherCfg.delMpRoleOther(mpr.mpid);
+    await DBService(email: e).updateOtherUserData(e, otherCfg);
+
+    // TBD: Need to update other user state on device
+
+    setState(() {});
+  }
 
   Future _addViewer() async {}
 }

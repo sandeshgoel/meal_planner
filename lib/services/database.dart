@@ -36,7 +36,7 @@ class DBService {
   Future<List<YogaSettings>> getUsers() async {
     print('Getting all users ...');
     QuerySnapshot queryRef = await cfgCollection.get();
-
+    print('Fetched all users: ${queryRef.docs.length} docs ...');
     return queryRef.docs
         .map<YogaSettings>(
             (doc) => YogaSettings.fromJson(doc.data() as Map<String, dynamic>))

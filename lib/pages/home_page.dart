@@ -19,7 +19,8 @@ import 'package:meal_planner/services/settings.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  final String ver;
+  MyHomePage({required this.ver, Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -159,7 +160,10 @@ class _MyHomePageState extends State<MyHomePage> {
               : Container()),
           _drawerItem(context, 'Refresh settings', Icon(Icons.refresh),
               _refreshSettings),
+          Divider(),
           _drawerItem(context, 'About', Icon(Icons.info), _about),
+          _drawerItem(context, 'Sandesh Goel, ${widget.ver}',
+              Icon(Icons.copyright), () {}),
         ],
       ),
     );

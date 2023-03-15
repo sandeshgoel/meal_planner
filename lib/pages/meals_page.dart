@@ -44,7 +44,10 @@ class _MealsPageState extends State<MealsPage> {
           ret = Consumer<YogaSettings>(
             builder: (context, settings, _) {
               String formatted = DateFormat('MMM dd, y').format(day);
-              List<Widget> dayList = _dayList(day, settings.mealPlanData);
+              MealPlanRole mpr = settings.getMprs()[settings.getCurMpIndex()];
+              List<Widget> dayList =
+                  _dayList(day, settings.mealPlanData, mpr.mpRole);
+
               return SingleChildScrollView(
                 child: Column(
                   children: [
@@ -105,12 +108,16 @@ class _MealsPageState extends State<MealsPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                            onPressed: _copyLastWeek,
+                            onPressed: (mpr.mpRole == MpRole.admin)
+                                ? _copyLastWeek
+                                : null,
                             child: Text('Copy from last week')),
                         ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red),
-                            onPressed: _clearWeek,
+                            onPressed: (mpr.mpRole == MpRole.admin)
+                                ? _clearWeek
+                                : null,
                             child: Text('Clear this week')),
                       ],
                     ),
@@ -253,17 +260,18 @@ class _MealsPageState extends State<MealsPage> {
     showMsg(context, 'Deleted $deleted days!!');
   }
 
-  List<Widget> _dayList(DateTime day, Map<DateTime, DayMeal> mealMap) {
+  List<Widget> _dayList(
+      DateTime day, Map<DateTime, DayMeal> mealMap, MpRole role) {
     List<Widget> ret = [];
 
     for (var i = 0; i < 7; i++) {
       DateTime nday = day.add(Duration(days: i));
-      ret.add(_dayTile(nday, mealMap[nday] ?? DayMeal('', '', '', {})));
+      ret.add(_dayTile(nday, mealMap[nday] ?? DayMeal('', '', '', {}), role));
     }
     return ret;
   }
 
-  Widget _dayTile(DateTime date, DayMeal dayMeal) {
+  Widget _dayTile(DateTime date, DayMeal dayMeal, MpRole role) {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
     DateFormat formatter = DateFormat('MMM dd, y (E)');
     String formatted = formatter.format(date);
@@ -297,9 +305,11 @@ class _MealsPageState extends State<MealsPage> {
                       )
                     : Container(),
                 IconButton(
-                    onPressed: () {
-                      _editMeal(date, dayMeal);
-                    },
+                    onPressed: (role == MpRole.admin)
+                        ? () {
+                            _editMeal(date, dayMeal);
+                          }
+                        : null,
                     icon: Icon(Icons.edit)),
               ],
             ),

@@ -86,7 +86,9 @@ class _WrapperState extends State<Wrapper> {
 
     return Consumer<YogaSettings>(builder: (context, settings, _) {
       return ((user != null)
-          ? (settings.getUser().verified ? MyHomePage() : EmailVerifyPage())
+          ? (settings.getUser().verified
+              ? MyHomePage(ver: appVersion)
+              : EmailVerifyPage())
           : AuthenticatePage(ver: appVersion));
     });
   }

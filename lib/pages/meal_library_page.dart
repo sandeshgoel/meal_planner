@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_planner/pages/add_meal_lib_page.dart';
 import 'package:meal_planner/pages/edit_meal_lib_page.dart';
 import 'package:meal_planner/services/meal_plan.dart';
 import 'package:meal_planner/services/settings.dart';
+import 'package:meal_planner/shared/constants.dart';
 import 'package:provider/provider.dart';
 
 class MealLibrary extends StatefulWidget {
@@ -47,7 +49,7 @@ class _MealLibraryState extends State<MealLibrary> {
           // isExtended: true,
           child: Icon(Icons.add),
           backgroundColor: Colors.blue,
-          onPressed: _addMeal,
+          onPressed: () => _addMeal(settings),
         ),
       );
     });
@@ -88,7 +90,7 @@ class _MealLibraryState extends State<MealLibrary> {
                       margin: EdgeInsets.all(10),
                       child: Center(
                         child: Text(
-                          'Touch the row to edit display name for that meal',
+                          'Touch the row to edit display name for that meal (only superusers)',
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
@@ -125,7 +127,7 @@ class _MealLibraryState extends State<MealLibrary> {
                               child: Column(
                                 children: [
                                   InkWell(
-                                    onTap: () => _editMeal(k),
+                                    onTap: () => _editMeal(settings, k),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -146,25 +148,31 @@ class _MealLibraryState extends State<MealLibrary> {
     );
   }
 
-  void _editMeal(String label) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (BuildContext context) {
-        return EditMealLib(
-          label: label,
-        );
-      }),
-    ).then((value) {
-      setState(() {});
-    });
+  void _editMeal(YogaSettings settings, String label) {
+    if (settings.getSuperUser()) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (BuildContext context) {
+          return EditMealLib(
+            label: label,
+          );
+        }),
+      ).then((value) {
+        setState(() {});
+      });
+    }
   }
 
-  void _addMeal() async {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (BuildContext context) {
-        return AddMealLib();
-      }),
-    ).then((value) {
-      setState(() {});
-    });
+  void _addMeal(YogaSettings settings) async {
+    if (settings.getSuperUser()) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (BuildContext context) {
+          return AddMealLib();
+        }),
+      ).then((value) {
+        setState(() {});
+      });
+    } else {
+      showMsg(context, 'Request the owner of the app for this functionality');
+    }
   }
 }

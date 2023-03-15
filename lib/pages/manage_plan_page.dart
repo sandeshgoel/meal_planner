@@ -36,7 +36,18 @@ class _ManagePageState extends State<ManagePage> {
         appBar: AppBar(
           title: Text('Manage Meal Plans'),
         ),
-        body: _listMealPlans(settings),
+        body: Stack(children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.lime],
+                end: Alignment.topLeft,
+                begin: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          _listMealPlans(settings)
+        ]),
         floatingActionButton: FloatingActionButton(
           // isExtended: true,
           child: Icon(Icons.add),

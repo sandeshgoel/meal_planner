@@ -25,7 +25,7 @@ class _ManageUsersState extends State<ManageUsers> {
       builder:
           (BuildContext context, AsyncSnapshot<List<YogaSettings>> snapshot) {
         Widget ret;
-
+        print('Entering manage_users builder: $snapshot');
         if (snapshot.hasData) {
           List<YogaSettings> users = snapshot.data!;
 
@@ -35,8 +35,42 @@ class _ManageUsersState extends State<ManageUsers> {
             ),
             body: _listUsers(settings, users),
           );
+        } else if (snapshot.hasError) {
+          ret = Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 60,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('Error: ${snapshot.error}'),
+                )
+              ]);
         } else {
-          ret = Container();
+          ret = Scaffold(
+            appBar: AppBar(title: Text('Loading ...')),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 60),
+                Container(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.center,
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Text('Loading user data ...'),
+                  alignment: Alignment.center,
+                )
+              ],
+            ),
+          );
         }
         return ret;
       },
@@ -78,7 +112,19 @@ class _ManageUsersState extends State<ManageUsers> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(e.getUser().email),
-                            Text(e.getSuperUser().toString()),
+                            //Text(e.getSuperUser().toString()),
+                            Switch(
+                              value: e.getSuperUser(),
+                              onChanged: (val) async {
+                                if (val != e.getSuperUser()) {
+                                  e.setSuperUser(val);
+                                  await DBService(email: e.getUser().email)
+                                      .updateOtherUserData(
+                                          e.getUser().email, e);
+                                }
+                                setState(() {});
+                              },
+                            ),
                           ],
                         ),
                         Divider(),
