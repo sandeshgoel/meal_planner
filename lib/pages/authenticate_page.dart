@@ -288,7 +288,7 @@ class _AuthenticatePageState extends State<AuthenticatePage> {
                 height: 50,
                 child: Center(
                   child: Text(
-                    'Copyright 2021 Sandesh Goel',
+                    'Copyright 2023 Sandesh Goel',
                     style: TextStyle(fontSize: 10, color: Colors.blue),
                   ),
                 ),

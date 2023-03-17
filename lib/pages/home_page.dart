@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:meal_planner/pages/meal_library_page.dart';
 import 'package:meal_planner/pages/meals_page.dart';
 import 'package:meal_planner/pages/stats_page.dart';
 import 'package:meal_planner/services/auth.dart';
+import 'package:meal_planner/services/database.dart';
 import 'package:meal_planner/services/meal_plan.dart';
 import 'package:meal_planner/shared/constants.dart';
 
@@ -222,6 +224,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _logout() async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    FirebaseAnalytics.instance.logEvent(
+        name: 'logout', parameters: {'user': settings.getUser().email});
+    await DBService(email: settings.getUser().email).log({'type': 'logout'});
+
     GoogleSignInProvider _google =
         Provider.of<GoogleSignInProvider>(context, listen: false);
     await _auth.signOut();

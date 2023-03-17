@@ -2,8 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
+import 'package:meal_planner/services/database.dart';
+import 'package:upgrader/upgrader.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:meal_planner/pages/authenticate_page.dart';
 import 'package:meal_planner/pages/email_verify_page.dart';
 import 'package:meal_planner/services/auth.dart';
@@ -59,7 +62,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.blue,
             ),
-            home: Wrapper(),
+            home: kIsWeb ? Wrapper() : UpgradeAlert(child: Wrapper()),
             debugShowCheckedModeBanner: false,
           ),
         ),
@@ -115,6 +118,9 @@ class _WrapperState extends State<Wrapper> {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
 
     print('_rightAfterSignIn: ${user.email} ${user.displayName}');
+    FirebaseAnalytics.instance
+        .logEvent(name: 'login', parameters: {'user': user.email});
+    await DBService(email: user.email).log({'type': 'login'});
 
     settings.initSettings();
 

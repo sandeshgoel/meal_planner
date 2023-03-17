@@ -51,7 +51,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome to Yoga Assist'),
+        title: Text('Welcome to Meal Easy'),
       ),
       body: Stack(
         children: [
@@ -69,7 +69,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
               children: [
                 SizedBox(height: 40),
                 Image.asset(
-                  "assets/icon/yoga.png",
+                  "assets/icon/meal_easy_icon.png",
                   height: 80,
                   width: 80,
                 ),

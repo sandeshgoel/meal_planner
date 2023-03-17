@@ -26,10 +26,12 @@ class DBService {
       Map<String, dynamic> jval = cfg.settingsToJson();
       _lastCfg = jsonDecode(jsonEncode(jval)); // make a copy
       await cfgCollection.doc(email).set(jval);
+      await log({'type': 'configs', 'sub': 'write', 'value': jval});
     }
   }
 
   Future getUserData() async {
+    await log({'type': 'configs', 'sub': 'read'});
     return await cfgCollection.doc(email).get();
   }
 
@@ -37,6 +39,8 @@ class DBService {
     print('Getting all users ...');
     QuerySnapshot queryRef = await cfgCollection.get();
     print('Fetched all users: ${queryRef.docs.length} docs ...');
+    await log(
+        {'type': 'configs', 'sub': 'read_all', 'value': queryRef.docs.length});
     return queryRef.docs
         .map<YogaSettings>(
             (doc) => YogaSettings.fromJson(doc.data() as Map<String, dynamic>))
@@ -45,6 +49,7 @@ class DBService {
 
   Future<DocumentSnapshot> getOtherUser(String otherEmail) async {
     DocumentSnapshot doc = await cfgCollection.doc(otherEmail).get();
+    await log({'type': 'configs', 'sub': 'read_other', 'value': otherEmail});
     return doc;
   }
 
@@ -52,6 +57,7 @@ class DBService {
     Map<String, dynamic> jval = cfg.settingsToJson();
     _lastCfg = jsonDecode(jsonEncode(jval)); // make a copy
     await cfgCollection.doc(otherEmail).set(jval);
+    await log({'type': 'configs', 'sub': 'write_other', 'value': otherEmail});
     print('Updated profile for $otherEmail');
   }
 
@@ -63,15 +69,18 @@ class DBService {
   Future addMealPlan(String mpid, Map<String, dynamic> mp) async {
     await mpCollection.doc(mpid).set(mp);
     print('Written to DB mealplan $mpid...');
+    await log({'type': 'mealplans', 'sub': 'write', 'value': mpid});
   }
 
   Future updateMealPlan(Map<String, dynamic> mp, String mpid) async {
     await mpCollection.doc(mpid).set(mp);
     print("Updated meal plan with ID: $mpid");
+    await log({'type': 'mealplans', 'sub': 'update', 'value': mpid});
   }
 
   Future getMealPlan(String docId) async {
     print('Getting from meal plan, doc id $docId ...');
+    await log({'type': 'mealplans', 'sub': 'read', 'value': docId});
     return await mpCollection.doc(docId).get();
   }
 
@@ -82,6 +91,7 @@ class DBService {
 
   Future addMealPlanData(Map<String, dynamic> mpd) async {
     String docid = mpd['mpid'] + '_' + DateFormat('yyMMdd').format(mpd['date']);
+    await log({'type': 'mealplanData', 'sub': 'write', 'value': docid});
     await mpDataCollection.doc(docid).set(mpd);
   }
 
@@ -89,10 +99,13 @@ class DBService {
     String docid = mpid + '_' + DateFormat('yyMMdd').format(date);
     print('Deleting from mealplanData, $docid ...');
     await mpDataCollection.doc(docid).delete();
+    await log({'type': 'mealplanData', 'sub': 'delete', 'value': docid});
   }
 
   Future<QuerySnapshot> getMealPlanData(String mpid, DateTime date) async {
+    String docid = mpid + '_' + DateFormat('yyMMdd').format(date);
     print('Getting from mealplanData, mpid $mpid $date ...');
+    await log({'type': 'mealplanData', 'sub': 'read', 'value': docid});
     return await mpDataCollection
         .where('mpid', isEqualTo: mpid)
         .where('date', isEqualTo: date)
@@ -103,6 +116,13 @@ class DBService {
       String mpid, DateTime startDate, int numDays) async {
     DateTime endDate = startDate.add(Duration(days: numDays));
     print('Getting from mealplanData, mpid $mpid $startDate $endDate...');
+    String docid = mpid + '_' + DateFormat('yyMMdd').format(startDate);
+    await log({
+      'type': 'mealplanData',
+      'sub': 'read_range',
+      'value': docid,
+      'days': numDays
+    });
 
     return await mpDataCollection
         .where('mpid', isEqualTo: mpid)
@@ -119,11 +139,25 @@ class DBService {
   Future addMeal(Map<String, dynamic> m, String label) async {
     print('Writing to DB meallib $m ...');
     await mealsCollection.doc(label).set(m, SetOptions(merge: true));
+    await log({'type': 'meallib', 'sub': 'write', 'value': m.toString()});
   }
 
   Future<QuerySnapshot> getMeals() async {
     print('Getting from meals library ...');
-    return await mealsCollection.get();
+    QuerySnapshot queryRef = await mealsCollection.get();
+    await log(
+        {'type': 'meallib', 'sub': 'read_all', 'value': queryRef.docs.length});
+    return queryRef;
+  }
+
+// -------------------------------------------------
+  final CollectionReference logCollection =
+      FirebaseFirestore.instance.collection('logs');
+
+  Future log(Map<String, dynamic> msg) async {
+    msg['user'] = email;
+    msg['time'] = DateTime.now();
+    await logCollection.add(msg);
   }
 
 // -------------------------------------------------
