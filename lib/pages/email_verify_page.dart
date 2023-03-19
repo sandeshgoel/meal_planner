@@ -41,7 +41,7 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
 
     AuthService().userReload();
     bool _verified = AuthService().currentUser()!.emailVerified;
-    print(_verified.toString());
+    print('email_verify_page: verified=${_verified.toString()}');
     if (_verified) settings.setUserVerified(_verified);
   }
 

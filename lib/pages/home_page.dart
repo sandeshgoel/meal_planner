@@ -1,4 +1,3 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +37,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return true;
   }
 
+  var scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
@@ -51,10 +52,12 @@ class _MyHomePageState extends State<MyHomePage> {
             int shared =
                 mp.admins.length + mp.members.length + mp.viewers.length - 1;
             List<String> slist = mp.admins + mp.members;
+            var _photo = settings.getUser().photo;
 
             return ShowCaseWidget(
               builder: Builder(builder: (context) {
                 return Scaffold(
+                  key: scaffoldKey,
                   appBar: AppBar(
                     actions: [
                       IconButton(
@@ -83,6 +86,23 @@ class _MyHomePageState extends State<MyHomePage> {
                           SizedBox(width: 10),
                           Text(mp.name, style: const TextStyle(fontSize: 18)),
                         ],
+                      ),
+                    ),
+                    leading: InkWell(
+                      onTap: () => scaffoldKey.currentState?.openDrawer(),
+                      child: Container(
+                        margin: EdgeInsets.only(left: 10),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(width: 2, color: Colors.yellow),
+                          image: DecorationImage(
+                            fit: BoxFit.contain,
+                            image: (_photo == '')
+                                ? AssetImage("assets/icon/meal_easy_icon.png")
+                                    as ImageProvider
+                                : NetworkImage(_photo),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -225,8 +245,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _logout() async {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
-    FirebaseAnalytics.instance.logEvent(
-        name: 'logout', parameters: {'user': settings.getUser().email});
+
     await DBService(email: settings.getUser().email).log({'type': 'logout'});
 
     GoogleSignInProvider _google =

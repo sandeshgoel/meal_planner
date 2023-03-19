@@ -6,7 +6,6 @@ import 'package:meal_planner/services/database.dart';
 import 'package:upgrader/upgrader.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:meal_planner/pages/authenticate_page.dart';
 import 'package:meal_planner/pages/email_verify_page.dart';
 import 'package:meal_planner/services/auth.dart';
@@ -88,18 +87,16 @@ class _WrapperState extends State<Wrapper> {
     FirebaseAuth.instance.authStateChanges().listen(_authChangeHandler);
 
     return Consumer<YogaSettings>(builder: (context, settings, _) {
-      return ((user != null)
-          ? (settings.getUser().verified
-              ? MyHomePage(ver: appVersion)
-              : EmailVerifyPage())
-          : AuthenticatePage(ver: appVersion));
+      return ((user != null) ? WaitLoad() : AuthenticatePage(ver: appVersion));
     });
   }
 
   Future _authChangeHandler(User? user) async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
     if (user == null) {
       print('_authChangeHandler: User is currently signed out!');
       _uidSignedIn = '';
+      settings.loadComplete = false;
     } else {
       if (_uidSignedIn == user.uid) {
         // this is a duplicate sign in event, ignore it
@@ -116,11 +113,7 @@ class _WrapperState extends State<Wrapper> {
 
   Future _rightAfterSignIn(context, user) async {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
-
     print('_rightAfterSignIn: ${user.email} ${user.displayName}');
-    FirebaseAnalytics.instance
-        .logEvent(name: 'login', parameters: {'user': user.email});
-    await DBService(email: user.email).log({'type': 'login'});
 
     settings.initSettings();
 
@@ -157,5 +150,65 @@ class _WrapperState extends State<Wrapper> {
 
     // signal that loading is complete
     settings.loadComplete = true;
+
+    await DBService(email: user.email).log({'type': 'login'});
+  }
+}
+
+class WaitLoad extends StatefulWidget {
+  const WaitLoad({super.key});
+
+  @override
+  State<WaitLoad> createState() => _WaitLoadState();
+}
+
+class _WaitLoadState extends State<WaitLoad> {
+  Future<bool> _shared() async {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    while (!settings.loadComplete)
+      await Future.delayed(Duration(milliseconds: 100));
+    print(
+        'WaitLoad: verified=${settings.getUser().verified}, loadComplete=${settings.loadComplete}');
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
+    return FutureBuilder<bool>(
+      future: _shared(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        Widget ret = Container();
+
+        if (snapshot.hasData) {
+          ret = (settings.getUser().verified
+              ? MyHomePage(ver: appVersion)
+              : EmailVerifyPage());
+        } else {
+          ret = Scaffold(
+            appBar: AppBar(title: Text('Loading ...')),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 60),
+                Container(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.center,
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Text('Loading settings ...'),
+                  alignment: Alignment.center,
+                )
+              ],
+            ),
+          );
+        }
+        return ret;
+      },
+    );
   }
 }

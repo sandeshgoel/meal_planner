@@ -196,6 +196,7 @@ class YogaSettings with ChangeNotifier {
 
   void setUserVerified(bool v) {
     _user.verified = v;
+    saveSettings();
     notifyListeners();
   }
 
