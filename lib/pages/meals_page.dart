@@ -324,8 +324,9 @@ class _MealsPageState extends State<MealsPage> {
                   color: Colors.lightBlue[100],
                   child: Row(
                     children: [
+                      Icon(Icons.apple),
                       Text(
-                        'Snack: ${settings.meals[dayMeal.other[BSNACK] ?? '']}',
+                        ' ${settings.meals[dayMeal.other[BSNACK] ?? '']}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -378,8 +379,9 @@ class _MealsPageState extends State<MealsPage> {
                   color: Colors.lightBlue[100],
                   child: Row(
                     children: [
+                      Icon(Icons.cake),
                       Text(
-                        'Snack: ${settings.meals[dayMeal.other[LSNACK] ?? '']}',
+                        ' ${settings.meals[dayMeal.other[LSNACK] ?? '']}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -432,8 +434,9 @@ class _MealsPageState extends State<MealsPage> {
                   color: Colors.lightBlue[100],
                   child: Row(
                     children: [
+                      Icon(Icons.soup_kitchen),
                       Text(
-                        'Snack: ${settings.meals[dayMeal.other[DSNACK] ?? '']}',
+                        ' ${settings.meals[dayMeal.other[DSNACK] ?? '']}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],

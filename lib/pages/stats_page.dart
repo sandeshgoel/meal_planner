@@ -24,9 +24,13 @@ class Stats {
 
   Map<String, int> mealCount = {};
   List<MealCounter> mlist = [];
+  List<String> ignoredSorted = [];
   Set<String> ignoredMeals = {};
   Set<String> unignoredMeals = {};
   Map<String, int> lastCooked = {};
+
+  Set<String> allMeals = {};
+  Set<String> missingMeals = {};
 
   void incrementMealCount(String label) {
     mealCount[label] = (mealCount[label] ?? 0) + 1;
@@ -51,6 +55,9 @@ class _StatsPageState extends State<StatsPage> {
     stats.unignoredMeals = {};
     stats.lastCooked = {};
 
+    stats.allMeals = {};
+    stats.missingMeals = {};
+
     for (DateTime date in settings.mealPlanData.keys) {
       if (date.isBefore(DateTime.now())) {
         DayMeal m = settings.mealPlanData[date]!;
@@ -74,13 +81,19 @@ class _StatsPageState extends State<StatsPage> {
         } else {
           stats.unignoredMeals.addAll(mealList.toSet());
         }
+        stats.allMeals.addAll(mealList.toSet());
       } else
         stats.futureMeals += 1;
     }
 
-    print('${stats.ignoredMeals}, ${stats.unignoredMeals}');
+    //print('${stats.ignoredMeals}, ${stats.unignoredMeals}');
     stats.ignoredMeals = stats.ignoredMeals.difference(stats.unignoredMeals);
     print(stats.ignoredMeals);
+    stats.ignoredSorted = stats.ignoredMeals.toList();
+    stats.ignoredSorted
+        .sort((a, b) => stats.lastCooked[b]!.compareTo(stats.lastCooked[a]!));
+
+    stats.missingMeals = settings.meals.keys.toSet().difference(stats.allMeals);
 
     for (String l in stats.mealCount.keys) {
       stats.mlist.add(MealCounter(l, stats.mealCount[l] ?? 0));
@@ -111,105 +124,215 @@ class _StatsPageState extends State<StatsPage> {
               ),
             ),
           ),
-          Column(
-            children: [
-              // Past card
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                // Past card
 
-              Card(
-                margin: EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                        Container(
+                Card(
+                  margin: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                          Container(
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              child: Text(
+                                'Past',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              )),
+                          Container(
                             margin: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 10),
+                                horizontal: 10, vertical: 5),
                             child: Text(
-                              'Past',
+                                '${stats.pastMeals} / ${stats.pastDays} days have meals'),
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: Text(
+                              'Favorite meals',
                               style: TextStyle(fontWeight: FontWeight.bold),
-                            )),
-                        Container(
-                          margin:
-                              EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          child: Text(
-                              '${stats.pastMeals} / ${stats.pastDays} days have meals'),
-                        ),
-                        Container(
-                          margin:
-                              EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          child: Text(
-                            'Favorite meals',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
-                        ),
-                      ] +
-                      stats.mlist
-                          .map((e) => Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 80, vertical: 2),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(settings.meals[e.meal]!),
-                                  Text(e.count.toString())
-                                ],
-                              )))
-                          .toList() +
-                      [
-                        Container(height: 20),
-                        Container(
-                          margin:
-                              EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          child: Text(
-                            'Meals not seen in last ${stats.ignoreDef} days',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ] +
-                      stats.ignoredMeals
-                          .map((e) => Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 80, vertical: 2),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(settings.meals[e]!),
-                                  Text('${stats.lastCooked[e]} days ago')
-                                ],
-                              )))
-                          .toList() +
-                      [
-                        Container(height: 20),
-                      ],
+                        ] +
+                        stats.mlist
+                            .map((e) => Container(
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: 80, vertical: 2),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(settings.meals[e.meal]!),
+                                    Text(e.count.toString())
+                                  ],
+                                )))
+                            .toList() +
+                        [
+                          Container(height: 10),
+                        ],
+                  ),
                 ),
-              ),
 
-              // Future card
+                // Ignored Meals
 
-              Card(
-                margin: EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                    Container(
+                Card(
+                  margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                  child: Column(
+                    children: [
+                          Container(height: 10),
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: Text(
+                              'Meals not seen in last ${stats.ignoreDef} days',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Container(height: 10),
+                        ] +
+                        _listAllMeals(settings) +
+                        [
+                          Container(height: 20),
+                        ],
+                  ),
+                ),
+
+                // Missing Meals
+
+                Card(
+                  margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                  child: Column(
+                    children: [
+                          Container(height: 10),
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: Text(
+                              'Meals missing completely',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Container(height: 10),
+                        ] +
+                        _listAllMissingMeals(settings) +
+                        [
+                          Container(height: 20),
+                        ],
+                  ),
+                ),
+
+                // Future card
+
+                Card(
+                  margin: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          child: Text(
+                            'Future',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
+                      Container(
                         margin:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         child: Text(
-                          'Future',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      child: Text(
-                          '${stats.futureMeals} / ${stats.futureDays} days have meals'),
-                    ),
-                    Container(height: 20),
-                  ],
+                            '${stats.futureMeals} / ${stats.futureDays} days have meals'),
+                      ),
+                      Container(height: 20),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
     );
+  }
+
+  List<Container> _listAllMeals(YogaSettings settings) {
+    List<Container> ret = [];
+
+    for (MealCategory cat in MealCategory.values) {
+      ret = ret + _listMeals(settings, cat);
+    }
+    return ret;
+  }
+
+  List<Container> _listMeals(YogaSettings settings, MealCategory cat) {
+    return [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Text(
+              displayCategory(cat),
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Container(height: 10),
+        ] +
+        stats.ignoredSorted
+            .map(
+              (e) => (settings.mealsCategory[e] == cat)
+                  ? Container(
+                      margin: EdgeInsets.symmetric(horizontal: 80, vertical: 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(settings.meals[e]!),
+                          Text('${stats.lastCooked[e]} days ago')
+                        ],
+                      ),
+                    )
+                  : Container(),
+            )
+            .toList();
+  }
+
+  List<Container> _listAllMissingMeals(YogaSettings settings) {
+    List<Container> ret = [];
+
+    for (MealCategory cat in MealCategory.values) {
+      ret = ret + _listMissingMeals(settings, cat);
+    }
+    return ret;
+  }
+
+  List<Container> _listMissingMeals(YogaSettings settings, MealCategory cat) {
+    return [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Text(
+              displayCategory(cat),
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Container(height: 10),
+        ] +
+        stats.missingMeals
+            .map(
+              (e) => (settings.mealsCategory[e] == cat)
+                  ? Container(
+                      margin: EdgeInsets.symmetric(horizontal: 80, vertical: 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(settings.meals[e]!),
+                          InkWell(
+                            onTap: () =>
+                                showMsg(context, 'Not implemented yet'),
+                            child: Text(
+                              'Hide for me',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  : Container(),
+            )
+            .toList();
   }
 }
