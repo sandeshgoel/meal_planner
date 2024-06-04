@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.5+9
+version: 1.0.6+10
 
 environment:
   sdk: '>=2.18.0 <3.0.0'
@@ -31,25 +31,25 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  showcaseview: ^1.1.1
-  shared_preferences: ^2.0.6
-  provider: ^5.0.0
-  intl: ^0.17.0
-  google_sign_in: ^5.0.5
-  font_awesome_flutter: ^9.1.0
-  flutter_spinkit: ^5.0.0
-  url_launcher: ^6.0.9
-  package_info_plus: ^3.0.1
-  flutter_form_builder: ^7.6.0
-  flutter_launcher_icons: ^0.12.0
-  upgrader: ^6.1.0
+  showcaseview: ^3.0.0
+  shared_preferences: ^2.2.3
+  provider: ^6.1.2
+  intl: ^0.19.0
+  google_sign_in: ^6.2.1
+  font_awesome_flutter: ^10.7.0
+  flutter_spinkit: ^5.2.1
+  url_launcher: ^6.3.0
+  package_info_plus: ^8.0.0
+  flutter_form_builder: ^9.3.0
+  flutter_launcher_icons: ^0.13.1
+  upgrader: ^10.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  firebase_core: ^2.7.0
-  firebase_auth: ^4.2.2
-  cloud_firestore: ^4.4.3
+  cupertino_icons: ^1.0.8
+  firebase_core: ^2.32.0
+  firebase_auth: ^4.20.0
+  cloud_firestore: ^4.17.5
 
 flutter_icons:
   android: "launcher_icon"

@@ -44,7 +44,7 @@ class _EditMealState extends State<EditMeal> {
               width: double.infinity,
               color: Colors.lightBlue,
               padding: EdgeInsets.all(10),
-              margin: const EdgeInsets.fromLTRB(10, 10, 10, 20),
+              margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Center(
                 child: Text(
                   'Edit meals for $formatted',
@@ -57,7 +57,7 @@ class _EditMealState extends State<EditMeal> {
             // Action buttons
 
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -99,11 +99,9 @@ class _EditMealState extends State<EditMeal> {
             (settings.getBsnack() ? _editMealTile(BSNACK) : Container()),
             _editMealTile(BREAKFAST),
             (settings.getBside() ? _editMealTile(BSIDE) : Container()),
-            Divider(),
             (settings.getLsnack() ? _editMealTile(LSNACK) : Container()),
             _editMealTile(LUNCH),
             (settings.getLside() ? _editMealTile(LSIDE) : Container()),
-            Divider(),
             (settings.getDsnack() ? _editMealTile(DSNACK) : Container()),
             _editMealTile(DINNER),
             (settings.getDside() ? _editMealTile(DSIDE) : Container()),
@@ -111,7 +109,7 @@ class _EditMealState extends State<EditMeal> {
             // Action buttons
 
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -213,82 +211,68 @@ class _EditMealState extends State<EditMeal> {
     YogaSettings settings = Provider.of<YogaSettings>(context, listen: false);
 
     return Card(
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _displayName(label),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                Text(settings.meals[_displayMeal(label)]!),
-              ],
+      margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _displayName(label),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-          ),
-          Container(
-            margin: EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Select:'),
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.arrow_drop_down),
-                  tooltip: 'Categories',
-                  onSelected: (value) {
-                    //Do something with selected parent value
-                    print('$value parent selected');
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return <PopupMenuEntry<String>>[
-                      PopupSubMenuItem<String>(
-                        title: displayCategory(MealCategory.dal),
-                        items: settings.listMeals(MealCategory.dal),
-                        display_function: (val) => settings.meals[val]!,
-                        onSelected: (value) {
-                          //Do something with selected child value
-                          print('$value selected');
-                          setState(() {
-                            _updateMeal(label, value);
-                          });
-                        },
-                      ),
-                      PopupSubMenuItem<String>(
-                        title: displayCategory(MealCategory.snack),
-                        items: settings.listMeals(MealCategory.snack),
-                        display_function: (val) => settings.meals[val]!,
-                        onSelected: (value) {
-                          //Do something with selected child value
-                          print('$value selected');
-                          setState(() {
-                            _updateMeal(label, value);
-                          });
-                        },
-                      ),
-                      PopupSubMenuItem<String>(
-                        title: displayCategory(MealCategory.veg),
-                        items: settings.listMeals(MealCategory.veg),
-                        display_function: (val) => settings.meals[val]!,
-                        onSelected: (value) {
-                          //Do something with selected child value
-                          print('$value selected');
-                          setState(() {
-                            _updateMeal(label, value);
-                          });
-                        },
-                      ),
-                    ];
-                  },
-                ),
-              ],
+            Text(settings.meals[_displayMeal(label)]!,
+                style: TextStyle(fontSize: 12)),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.arrow_drop_down),
+              tooltip: 'Categories',
+              onSelected: (value) {
+                //Do something with selected parent value
+                print('$value parent selected');
+              },
+              itemBuilder: (BuildContext context) {
+                return <PopupMenuEntry<String>>[
+                  PopupSubMenuItem<String>(
+                    title: displayCategory(MealCategory.dal),
+                    items: settings.listMeals(MealCategory.dal),
+                    display_function: (val) => settings.meals[val]!,
+                    onSelected: (value) {
+                      //Do something with selected child value
+                      print('$value selected');
+                      setState(() {
+                        _updateMeal(label, value);
+                      });
+                    },
+                  ),
+                  PopupSubMenuItem<String>(
+                    title: displayCategory(MealCategory.snack),
+                    items: settings.listMeals(MealCategory.snack),
+                    display_function: (val) => settings.meals[val]!,
+                    onSelected: (value) {
+                      //Do something with selected child value
+                      print('$value selected');
+                      setState(() {
+                        _updateMeal(label, value);
+                      });
+                    },
+                  ),
+                  PopupSubMenuItem<String>(
+                    title: displayCategory(MealCategory.veg),
+                    items: settings.listMeals(MealCategory.veg),
+                    display_function: (val) => settings.meals[val]!,
+                    onSelected: (value) {
+                      //Do something with selected child value
+                      print('$value selected');
+                      setState(() {
+                        _updateMeal(label, value);
+                      });
+                    },
+                  ),
+                ];
+              },
             ),
-          ),
-          SizedBox(height: 10),
-        ],
+          ],
+        ),
       ),
     );
   }

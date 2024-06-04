@@ -150,7 +150,7 @@ class _StatsPageState extends State<StatsPage> {
                             margin: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             child: Text(
-                              'Favorite meals',
+                              'Most Popular Meals',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -185,7 +185,7 @@ class _StatsPageState extends State<StatsPage> {
                             margin: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             child: Text(
-                              'Meals not seen in last ${stats.ignoreDef} days',
+                              'Meals not cooked in last ${stats.ignoreDef} days',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -209,7 +209,7 @@ class _StatsPageState extends State<StatsPage> {
                             margin: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             child: Text(
-                              'Meals missing completely',
+                              'Meals missing in last ${numWeeks * 7} days',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -225,7 +225,7 @@ class _StatsPageState extends State<StatsPage> {
                 // Future card
 
                 Card(
-                  margin: EdgeInsets.all(10),
+                  margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
                   child: Column(
                     children: [
                       Container(

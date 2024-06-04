@@ -110,8 +110,8 @@ String displayCategory(MealCategory category) {
 
 // reverse of describe enum
 MealCategory strToCategory(String c) {
-  MealCategory res = MealCategory.values.firstWhere((e) => describeEnum(e) == c,
-      orElse: () => MealCategory.snack);
+  MealCategory res = MealCategory.values
+      .firstWhere((e) => e.name == c, orElse: () => MealCategory.snack);
   return res;
 }
 
@@ -129,15 +129,14 @@ class Meal {
   Meal.fromJson(jval) {
     this.label = jval['label'];
     this.display_name = jval['name'];
-    this.category =
-        strToCategory(jval['category'] ?? describeEnum(MealCategory.snack));
+    this.category = strToCategory(jval['category'] ?? MealCategory.snack.name);
   }
 
   Map<String, dynamic> toJson() {
     return {
       'label': this.label,
       'name': this.display_name,
-      'category': describeEnum(this.category),
+      'category': this.category.name,
     };
   }
 }

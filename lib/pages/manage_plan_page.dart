@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_planner/pages/edit_meal_plan_page.dart';
 import 'package:meal_planner/services/meal_plan.dart';
@@ -143,7 +142,7 @@ class _ManagePageState extends State<ManagePage> {
                     // Role and creator
 
                     Text(
-                      'Role:${describeEnum(mpr.mpRole)}, Creator:${r.creator}',
+                      'Role:${mpr.mpRole.name}, Creator:${r.creator}',
                       style: TextStyle(fontSize: 14),
                     ),
                     SizedBox(height: 10),

@@ -63,6 +63,23 @@ class DBService {
 
 // -------------------------------------------------
 
+  final CollectionReference hideCollection =
+      FirebaseFirestore.instance.collection('hiddenMeals');
+
+  Future updateHiddenMeals(List<String> meals) async {
+    Map<String, dynamic> jval = {'meals': meals};
+
+    await cfgCollection.doc(email).set(jval);
+    await log({'type': 'hiddenMeals', 'sub': 'write', 'value': jval});
+  }
+
+  Future getHiddenMeals() async {
+    await log({'type': 'hiddenMeals', 'sub': 'read'});
+    return await hideCollection.doc(email).get();
+  }
+
+// -------------------------------------------------
+
   final CollectionReference mpCollection =
       FirebaseFirestore.instance.collection('mealplans');
 

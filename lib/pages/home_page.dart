@@ -54,75 +54,73 @@ class _MyHomePageState extends State<MyHomePage> {
             List<String> slist = mp.admins + mp.members;
             var _photo = settings.getUser().photo;
 
-            return ShowCaseWidget(
-              builder: Builder(builder: (context) {
-                return Scaffold(
-                  key: scaffoldKey,
-                  appBar: AppBar(
-                    actions: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return StatsPage();
-                            }),
-                          ).then((value) {
-                            setState(() {});
-                          });
-                        },
-                        icon: const Icon(
-                            IconData(0xf5a9, fontFamily: 'MaterialIcons')),
-                      ),
-                    ],
-                    title: Tooltip(
-                      message: (shared > 0)
-                          ? 'This plan has been shared with ' +
-                              slist.join(', ') +
-                              '.'
-                          : 'This plan has not been shared!',
-                      child: Row(
-                        children: [
-                          Icon((shared > 0) ? Icons.group : Icons.group_off),
-                          SizedBox(width: 10),
-                          Text(mp.name, style: const TextStyle(fontSize: 18)),
-                        ],
-                      ),
+            return ShowCaseWidget(builder: (context) {
+              return Scaffold(
+                key: scaffoldKey,
+                appBar: AppBar(
+                  actions: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                            return StatsPage();
+                          }),
+                        ).then((value) {
+                          setState(() {});
+                        });
+                      },
+                      icon: const Icon(
+                          IconData(0xf5a9, fontFamily: 'MaterialIcons')),
                     ),
-                    leading: InkWell(
-                      onTap: () => scaffoldKey.currentState?.openDrawer(),
-                      child: Container(
-                        margin: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(width: 2, color: Colors.yellow),
-                          image: DecorationImage(
-                            fit: BoxFit.contain,
-                            image: (_photo == '')
-                                ? AssetImage("assets/icon/meal_easy_icon.png")
-                                    as ImageProvider
-                                : NetworkImage(_photo),
-                          ),
+                  ],
+                  title: Tooltip(
+                    message: (shared > 0)
+                        ? 'This plan has been shared with ' +
+                            slist.join(', ') +
+                            '.'
+                        : 'This plan has not been shared!',
+                    child: Row(
+                      children: [
+                        Icon((shared > 0) ? Icons.group : Icons.group_off),
+                        SizedBox(width: 10),
+                        Text(mp.name, style: const TextStyle(fontSize: 18)),
+                      ],
+                    ),
+                  ),
+                  leading: InkWell(
+                    onTap: () => scaffoldKey.currentState?.openDrawer(),
+                    child: Container(
+                      margin: EdgeInsets.only(left: 10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(width: 2, color: Colors.yellow),
+                        image: DecorationImage(
+                          fit: BoxFit.contain,
+                          image: (_photo == '')
+                              ? AssetImage("assets/icon/meal_easy_icon.png")
+                                  as ImageProvider
+                              : NetworkImage(_photo),
                         ),
                       ),
                     ),
                   ),
-                  drawer: _drawer(context, settings),
-                  body: Stack(
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/images/background.jpg"),
-                            fit: BoxFit.cover,
-                          ),
+                ),
+                drawer: _drawer(context, settings),
+                body: Stack(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage("assets/images/background.jpg"),
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      MealsPage(),
-                    ],
-                  ),
-                );
-              }),
-            );
+                    ),
+                    MealsPage(),
+                  ],
+                ),
+              );
+            });
           });
         } else {
           ret = Scaffold(
@@ -163,8 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
       child: ListView(
         children: [
           _drawerHeader(context, settings),
-          _drawerItem(context, '$mpName (${describeEnum(mpRole)})',
-              Icon(Icons.note), () {}),
+          _drawerItem(
+              context, '$mpName (${mpRole.name})', Icon(Icons.note), () {}),
           Divider(),
           _drawerItem(
               context,

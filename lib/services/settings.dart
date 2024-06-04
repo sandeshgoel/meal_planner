@@ -76,7 +76,7 @@ class MealPlanRole {
   Map<String, dynamic> toJson() {
     return {
       'mpid': this.mpid,
-      'mpRole': describeEnum(this.mpRole),
+      'mpRole': this.mpRole.name,
     };
   }
 
@@ -86,8 +86,7 @@ class MealPlanRole {
   }
 
   static MpRole strToRole(String r) {
-    MpRole res = MpRole.values.firstWhere(
-        (element) => describeEnum(element) == r,
+    MpRole res = MpRole.values.firstWhere((element) => element.name == r,
         orElse: () => MpRole.viewer);
 
     return res;

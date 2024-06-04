@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:meal_planner/services/database.dart';
@@ -159,8 +158,7 @@ class _EditMealPlanState extends State<EditMealPlan> {
                         Expanded(
                           child: Container(),
                         ),
-                        Text(describeEnum(mpr.mpRole),
-                            style: settingsTextStyle),
+                        Text(mpr.mpRole.name, style: settingsTextStyle),
                       ]),
                       SizedBox(height: 20),
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-var numWeeks = 4;
+var numWeeks = 5;
 
 var boxDeco = BoxDecoration(
   borderRadius: BorderRadius.all(Radius.circular(20)),
