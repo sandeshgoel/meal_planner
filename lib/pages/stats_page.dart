@@ -58,8 +58,11 @@ class _StatsPageState extends State<StatsPage> {
     stats.allMeals = {};
     stats.missingMeals = {};
 
+    DateTime showStart =
+        DateTime.now().subtract(Duration(days: stats.pastDays - 1));
+
     for (DateTime date in settings.mealPlanData.keys) {
-      if (date.isBefore(DateTime.now())) {
+      if (date.isBefore(DateTime.now()) && (date.isAfter(showStart))) {
         DayMeal m = settings.mealPlanData[date]!;
         List<String> mealList = [m.breakfast, m.dinner, m.lunch];
         for (String meal in m.other.values) mealList.add(meal);
@@ -75,15 +78,14 @@ class _StatsPageState extends State<StatsPage> {
             DateTime.now().subtract(Duration(days: stats.ignoreDef)))) {
           stats.ignoredMeals.addAll(mealList.toSet());
           for (String meal in mealList.toSet()) {
-            if ((stats.lastCooked[meal] ?? stats.pastDays) > days)
+            if ((stats.lastCooked[meal] ?? (stats.pastDays)) > days)
               stats.lastCooked[meal] = days;
           }
         } else {
           stats.unignoredMeals.addAll(mealList.toSet());
         }
         stats.allMeals.addAll(mealList.toSet());
-      } else
-        stats.futureMeals += 1;
+      } else if (date.isAfter(DateTime.now())) stats.futureMeals += 1;
     }
 
     //print('${stats.ignoredMeals}, ${stats.unignoredMeals}');
@@ -96,7 +98,8 @@ class _StatsPageState extends State<StatsPage> {
     stats.missingMeals = settings.meals.keys.toSet().difference(stats.allMeals);
 
     for (String l in stats.mealCount.keys) {
-      stats.mlist.add(MealCounter(l, stats.mealCount[l] ?? 0));
+      if (l.length > 1)
+        stats.mlist.add(MealCounter(l, stats.mealCount[l] ?? 0));
     }
     stats.mlist.sort(((a, b) => b.count.compareTo(a.count)));
     stats.mlist =

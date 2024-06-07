@@ -61,6 +61,8 @@ class _MealsPageState extends State<MealsPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          // Left arrow
+
                           IconButton(
                             onPressed: () {
                               if (today.difference(day).inDays < 7 * numWeeks)
@@ -72,6 +74,9 @@ class _MealsPageState extends State<MealsPage> {
                             },
                             icon: const Icon(Icons.arrow_back),
                           ),
+
+                          // Middle text
+
                           Row(
                             children: [
                               Text(
@@ -86,6 +91,9 @@ class _MealsPageState extends State<MealsPage> {
                               ),
                             ],
                           ),
+
+                          // Right Arrow
+
                           IconButton(
                             onPressed: () {
                               if (day.difference(today).inDays < 7 * numWeeks)
@@ -101,24 +109,48 @@ class _MealsPageState extends State<MealsPage> {
                       ),
                     ),
 
-                    // copy button
+                    // Buttons row
 
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        // Copy button
+
                         ElevatedButton(
                             onPressed: (mpr.mpRole == MpRole.admin)
                                 ? _copyLastWeek
                                 : null,
-                            child: Text('Copy from last week')),
+                            child: Text(
+                              'Copy last week',
+                              style: TextStyle(fontSize: 12),
+                            )),
+
+                        // Clear button
+
                         ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red),
+                                backgroundColor:
+                                    Color.fromARGB(255, 250, 125, 116)),
                             onPressed: (mpr.mpRole == MpRole.admin)
                                 ? _clearWeek
                                 : null,
-                            child: Text('Clear this week')),
+                            child: Text(
+                              'Clear week',
+                              style: TextStyle(fontSize: 12),
+                            )),
+
+                        // Today button
+
+                        ElevatedButton(
+                            onPressed: () {
+                              day = today;
+                              setState(() {});
+                            },
+                            child: Text(
+                              'Go to today',
+                              style: TextStyle(fontSize: 12),
+                            )),
                       ],
                     ),
 

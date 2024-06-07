@@ -378,7 +378,7 @@ class YogaSettings with ChangeNotifier {
   Future getCurMealPlanData() async {
     DateTime now = DateTime.now();
     DateTime startDate = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: 7 * numWeeks));
+        .subtract(Duration(days: 7 * numWeeks - 1));
 
     QuerySnapshot queryRef = await DBService(email: _user.email)
         .getMealPlanDataDuration(
@@ -388,10 +388,10 @@ class YogaSettings with ChangeNotifier {
     List<MealPlanData> mpdList = [];
 
     for (var doc in queryRef.docs) {
-      print(doc.data());
+      //print(doc.data());
       MealPlanData m =
           MealPlanData.fromJson(doc.data() as Map<String, dynamic>);
-      print(m.toString());
+      //print(m.toString());
       mpdList.add(m);
     }
 
@@ -399,7 +399,7 @@ class YogaSettings with ChangeNotifier {
     for (MealPlanData mpd in mpdList) {
       mealPlanData[mpd.date] =
           DayMeal(mpd.breakfast, mpd.lunch, mpd.dinner, mpd.other);
-      print('${mpd.date}:${mealPlanData[mpd.date]}');
+      //print('${mpd.date}:${mealPlanData[mpd.date]}');
     }
 
     mpCachingNeeded = false;
